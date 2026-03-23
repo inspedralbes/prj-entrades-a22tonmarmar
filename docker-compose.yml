@@ -1,0 +1,41 @@
+services:
+  database:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: bingus1234
+      POSTGRES_DB: prj-entrades
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  # main-back:
+  #   build:
+  #     context: ./backend
+  #     target: dev # Points to the 'dev' stage in Dockerfile
+  #   volumes:
+  #     - ./backend:/app
+  #     - /app/node_modules
+  #   ports:
+  #     - "4000:4000"
+  #   depends_on:
+  #     - database
+  #   environment:
+  #     DATABASE_URL: postgresql://user:bingus1234@prj-entrades:5432
+
+  # frontend:
+  #   build:
+  #     context: ./frontend
+  #     target: dev # Points to the 'dev' stage in Dockerfile
+  #   volumes:
+  #     - ./frontend:/app
+  #     - /app/node_modules
+  #   ports:
+  #     - "3000:3000"
+  #   environment:
+  #     - NUXT_HOST=0.0.0.0
+  #     - NUXT_PORT=3000
+
+volumes:
+  db_data:
