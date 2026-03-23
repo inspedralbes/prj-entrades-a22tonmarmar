@@ -9,20 +9,28 @@ services:
       - db_data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
+    networks:
+      - prj-entrades
 
-  # main-back:
-  #   build:
-  #     context: ./backend
-  #     target: dev # Points to the 'dev' stage in Dockerfile
-  #   volumes:
-  #     - ./backend:/app
-  #     - /app/node_modules
-  #   ports:
-  #     - "4000:4000"
-  #   depends_on:
-  #     - database
-  #   environment:
-  #     DATABASE_URL: postgresql://user:bingus1234@prj-entrades:5432
+  main-back:
+    build:
+      context: ./backend/main-back
+      dockerfile: Dockerfile
+    volumes:
+      - ./backend/main-back:/var/www/html
+    ports:
+      - "8000:8000"
+    depends_on:
+      - database
+    environment:
+      DB_CONNECTION: pgsql
+      DB_HOST: database
+      DB_PORT: 5432
+      DB_DATABASE: prj-entrades
+      DB_USERNAME: user
+      DB_PASSWORD: bingus1234
+    networks:
+      - prj-entrades
 
   # frontend:
   #   build:
@@ -39,3 +47,8 @@ services:
 
 volumes:
   db_data:
+
+networks:
+  prj-entrades:
+    driver: bridge
+    name: prj-entrades
