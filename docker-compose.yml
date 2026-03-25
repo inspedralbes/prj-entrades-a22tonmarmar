@@ -32,18 +32,20 @@ services:
     networks:
       - prj-entrades
 
-  # frontend:
-  #   build:
-  #     context: ./frontend
-  #     target: dev # Points to the 'dev' stage in Dockerfile
-  #   volumes:
-  #     - ./frontend:/app
-  #     - /app/node_modules
-  #   ports:
-  #     - "3000:3000"
-  #   environment:
-  #     - NUXT_HOST=0.0.0.0
-  #     - NUXT_PORT=3000
+  frontend:
+    build:
+      context: ./frontend
+      target: dev # Points to the 'dev' stage in Dockerfile
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    ports:
+      - "3000:3000"
+    environment:
+      - NUXT_HOST=0.0.0.0
+      - NUXT_PORT=3000
+    networks:
+      - prj-entrades
 
 volumes:
   db_data:

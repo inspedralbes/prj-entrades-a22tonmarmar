@@ -2,8 +2,10 @@
   "name": "prj-entrades-a22tonmarmar",
   "version": "1.0.0",
   "scripts": {
-    "dev": "docker compose up --build",
-    "prod": "docker compose -f docker-compose.prod.yml up --build -d",
+    "start-dev": "docker compose up",
+    "start-prod": "docker compose -f docker-compose.prod.yml up",
+    "build-dev": "docker compose up --build",
+    "build-prod": "docker compose -f docker-compose.prod.yml up --build -d",
     "down": "docker compose down",
     "logs": "docker compose logs -f",
     "setup": "docker compose run --rm main-back sh -c \"cp .env.example .env && composer install && php artisan key:generate && php artisan migrate\""
