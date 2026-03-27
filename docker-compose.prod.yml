@@ -1,5 +1,5 @@
 services:
-  backend:
+  main-back:
     build:
       target: prod # Switches to 'prod' stage
     volumes: [] # Remove source code mount for security/performance
