@@ -5,7 +5,7 @@ export default defineNuxtConfig({
   modules: ['@nuxt/icon', '@nuxtjs/tailwindcss', '@pinia/nuxt'],
   runtimeConfig: {
     public: {
-      apiBase: '',
+      apiBase: 'http://localhost:8000/api',
     }
   },
 })

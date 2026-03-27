@@ -44,9 +44,9 @@ export function useApiClient() {
   return {
     get: (url, options = {}) => client(url, { ...options, method: "GET" }),
     post: (url, body, options = {}) =>
-      client(url, { ...options, method: "POST" }, body),
+      client(url, { ...options, method: "POST", body }),
     patch: (url, body, options = {}) =>
-      client(url, { ...options, method: "PATCH" }, body),
+      client(url, { ...options, method: "PATCH", body }),
     delete: (url, options = {}) =>
       client(url, { ...options, method: "DELETE" }),
   };
