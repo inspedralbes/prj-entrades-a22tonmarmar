@@ -23,15 +23,15 @@ class EventController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'nom_event' => 'required|string|max:255',
-            'data_event' => 'required|date',
-            'apertura_portes_event' => 'nullable|date_format:H:i',
-            'inici_event' => 'nullable|date_format:H:i',
-            'descripcio_event' => 'required|string',
-            'imatge_event' => 'nullable|string',
+            'nom' => 'required|string|max:255',
+            'artista' => 'nullable|string|max:255',
+            'data' => 'required|date',
+            'apertures_portes' => 'nullable|date_format:H:i',
+            'hora_inici' => 'nullable|date_format:H:i',
+            'descripcio' => 'required|string',
+            'imatge' => 'nullable|string',
             'sold_out' => 'boolean',
             'tiquet' => 'required|array',
-            'tiquet.nom' => 'nullable|string',
             'tiquet.preu_base' => 'required|numeric|min:0',
             'tiquet.preu_barricada' => 'nullable|numeric|min:0',
             'tiquet.preu_butaca' => 'nullable|numeric|min:0',
@@ -72,12 +72,13 @@ class EventController extends Controller
         $event = Event::findOrFail($id);
 
         $validated = $request->validate([
-            'nom_event' => 'string|max:255',
-            'data_event' => 'date',
-            'apertura_portes_event' => 'nullable|date_format:H:i',
-            'inici_event' => 'nullable|date_format:H:i',
-            'descripcio_event' => 'string',
-            'imatge_event' => 'nullable|string',
+            'nom' => 'string|max:255',
+            'artista' => 'nullable|string|max:255',
+            'data' => 'date',
+            'apertures_portes' => 'nullable|date_format:H:i',
+            'hora_inici' => 'nullable|date_format:H:i',
+            'descripcio' => 'string',
+            'imatge' => 'nullable|string',
             'preu_base' => 'numeric|min:0',
             'sold_out' => 'boolean',
             'tiquet_id' => 'exists:tiquets,id',
