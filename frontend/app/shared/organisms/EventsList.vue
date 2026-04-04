@@ -1,6 +1,7 @@
 <script setup>
 import BaseHeading from "@/shared/atoms/BaseHeading.vue";
 import BaseButton from "@/shared/atoms/BaseButton.vue";
+import EventListItem from "@/shared/molecules/EventListItem.vue";
 
 const props = defineProps({
   events: {
@@ -51,18 +52,14 @@ const emit = defineEmits(["create", "preview", "edit", "delete"]);
         </div>
 
         <div v-else class="space-y-2 text-sm text-slate-100">
-          <div
+          <EventListItem
             v-for="event in props.events"
             :key="event.id"
-            class="flex items-center justify-between rounded-md border border-slate-700/60 bg-slate-900 px-3 py-2"
-          >
-            <div class="truncate">
-              <span class="font-medium text-pink-300">{{ event.nom }}</span>
-              <span v-if="event.artista" class="ml-2 text-xs text-slate-400"
-                >· {{ event.artista }}</span
-              >
-            </div>
-          </div>
+            :event="event"
+            @preview="emit('preview', event)"
+            @edit="emit('edit', event)"
+            @delete="emit('delete', event)"
+          />
         </div>
       </main>
     </div>

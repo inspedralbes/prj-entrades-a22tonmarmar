@@ -12,6 +12,9 @@ const isEditOpen = ref(false);
 const isDeleteOpen = ref(false);
 const isPreviewOpen = ref(false);
 
+const selectedEvent = ref(null);
+const eventToDelete = ref(null);
+
 const fetchEvents = async () => {
   loadingList.value = true;
   listError.value = null;
@@ -32,6 +35,21 @@ onMounted(fetchEvents);
 const handleCreateRequest = () => {
   isCreateOpen.value = true;
 };
+
+const handlePreviewRequest = (event) => {
+  selectedEvent.value = event;
+  isPreviewOpen.value = true;
+};
+
+const handleEditRequest = (event) => {
+  selectedEvent.value = event;
+  isEditOpen.value = true;
+};
+
+const handleDeleteRequest = (event) => {
+  eventToDelete.value = event;
+  isDeleteOpen.value = true;
+};
 </script>
 
 <template>
@@ -41,6 +59,9 @@ const handleCreateRequest = () => {
       :loading="loadingList"
       :error="listError"
       @create="handleCreateRequest"
+      @preview="handlePreviewRequest"
+      @edit="handleEditRequest"
+      @delete="handleDeleteRequest"
     />
   </div>
 </template>
