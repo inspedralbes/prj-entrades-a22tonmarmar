@@ -15,7 +15,7 @@ const emit = defineEmits(["preview", "edit", "delete"]);
 
 <template>
   <article
-    class="flex items-center justify-between gap-4 rounded-md border border-slate-700/60 bg-slate-900 px-4 py-3 shadow-sm transition hover:-translate-y-0.5 hover:border-pink-500/70 hover:shadow-lg"
+    class="flex flex-col gap-3 rounded-md border border-slate-700/60 bg-slate-900 px-3 py-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4 sm:px-4 shadow-sm transition hover:-translate-y-0.5 hover:border-pink-500/70 hover:shadow-lg"
   >
     <div class="min-w-0 flex-1">
       <BaseHeading :level="3" class="truncate text-pink-200">
@@ -42,7 +42,7 @@ const emit = defineEmits(["preview", "edit", "delete"]);
       </div>
     </div>
 
-    <div class="flex flex-shrink-0 items-center gap-2">
+    <div class="flex flex-shrink-0 items-center gap-2 self-start sm:self-auto">
       <BaseButton variant="secondary" @click="emit('preview')">
         <Icon name="heroicons-outline:eye" class="h-4 w-4" />
       </BaseButton>

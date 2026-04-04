@@ -22,15 +22,17 @@ const emit = defineEmits(["create", "preview", "edit", "delete"]);
 </script>
 
 <template>
-  <section class="min-h-screen bg-slate-950 py-8 text-slate-100">
-    <div class="mx-auto flex max-w-5xl flex-col gap-6 px-4">
-      <header class="flex items-center justify-between gap-4">
+  <section class="min-h-screen bg-slate-950 py-4 sm:py-8 text-slate-100">
+    <div class="mx-auto flex h-full max-w-5xl flex-col gap-4 sm:gap-6 px-3 sm:px-4">
+      <header class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <BaseHeading :level="1">Gestió d'esdeveniments</BaseHeading>
-        <BaseButton @click="emit('create')">NOU EVENT</BaseButton>
+        <div class="flex justify-start sm:justify-end">
+          <BaseButton @click="emit('create')">NOU EVENT</BaseButton>
+        </div>
       </header>
 
       <main
-        class="rounded-lg border border-pink-700/30 bg-slate-900/80 p-4 shadow-xl"
+        class="flex-1 rounded-lg border border-pink-700/30 bg-slate-900/80 p-3 sm:p-4 shadow-xl"
       >
         <div v-if="loading" class="py-10 text-center text-sm text-slate-400">
           Carregant esdeveniments...
@@ -51,7 +53,10 @@ const emit = defineEmits(["create", "preview", "edit", "delete"]);
           Encara no hi ha esdeveniments.
         </div>
 
-        <div v-else class="space-y-2 text-sm text-slate-100">
+        <div
+          v-else
+          class="space-y-2 text-sm text-slate-100 max-h-[calc(100vh-220px)] overflow-y-auto pr-3 sm:pr-5"
+        >
           <EventListItem
             v-for="event in props.events"
             :key="event.id"
