@@ -1,0 +1,15 @@
+services:
+  main-back:
+    build:
+      target: prod # Switches to 'prod' stage
+    volumes: [] # Remove source code mount for security/performance
+    restart: always
+
+  frontend:
+    build:
+      target: prod
+    volumes: []
+    restart: always
+
+  database:
+    restart: always
