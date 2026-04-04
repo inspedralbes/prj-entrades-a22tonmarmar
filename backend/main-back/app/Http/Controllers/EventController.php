@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Event;
 use App\Models\Tiquet;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\Request;
 
 class EventController extends Controller
@@ -29,7 +30,7 @@ class EventController extends Controller
             'apertures_portes' => 'nullable|date_format:H:i',
             'hora_inici' => 'nullable|date_format:H:i',
             'descripcio' => 'required|string',
-            'imatge' => 'nullable|string',
+            'imatge' => 'nullable|image|max:2048',
             'sold_out' => 'boolean',
             'tiquet' => 'required|array',
             'tiquet.preu_base' => 'required|numeric|min:0',
@@ -37,7 +38,13 @@ class EventController extends Controller
             'tiquet.preu_butaca' => 'nullable|numeric|min:0',
         ]);
 
-        $event = DB::transaction(function () use ($validated) {
+        $imagePath = null;
+        if ($request->hasFile('imatge')) {
+            $path = $request->file('imatge')->store('events', 'public');
+            $imagePath = Storage::url($path);
+        }
+
+        $event = DB::transaction(function () use ($validated, $imagePath) {
             
             // A. Primero creamos el Tiquet
             $tiquetData = $validated['tiquet'];
@@ -45,8 +52,12 @@ class EventController extends Controller
 
             // B. Luego creamos el Evento asignándole el ID del tiquet recién creado
             // Quitamos la parte del tiquet del array validado para crear el evento limpio
-            $eventData = collect($validated)->except(['tiquet'])->toArray();
+            $eventData = collect($validated)->except(['tiquet', 'imatge'])->toArray();
             $eventData['tiquet_id'] = $tiquet->id;
+
+            if ($imagePath) {
+                $eventData['imatge'] = $imagePath;
+            }
 
             $event = Event::create($eventData);
 
@@ -78,15 +89,26 @@ class EventController extends Controller
             'apertures_portes' => 'nullable|date_format:H:i',
             'hora_inici' => 'nullable|date_format:H:i',
             'descripcio' => 'string',
-            'imatge' => 'nullable|string',
+            'imatge' => 'nullable|image|max:2048',
             'preu_base' => 'numeric|min:0',
             'sold_out' => 'boolean',
             'tiquet_id' => 'exists:tiquets,id',
         ]);
 
-        $event->update($validated);
+        $imagePath = null;
+        if ($request->hasFile('imatge')) {
+            $path = $request->file('imatge')->store('events', 'public');
+            $imagePath = Storage::url($path);
+        }
 
-        return response()->json($event, 200);
+        $data = collect($validated)->except(['imatge'])->toArray();
+        if ($imagePath) {
+            $data['imatge'] = $imagePath;
+        }
+
+        $event->update($data);
+
+        return response()->json($event->fresh('tiquet'), 200);
     }
 
     /**
