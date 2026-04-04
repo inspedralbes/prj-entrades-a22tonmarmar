@@ -18,7 +18,25 @@ class OrderController extends Controller
             'email' => 'required|email',
             'tiquets' => 'required|array|min:1|max:6',
             'tiquets.*.type' => 'required|string|max:255',
-            'tiquets.*.butaca' => 'nullable|string|max:255',
+            'tiquets.*.butaca' => [
+                'nullable',
+                'string',
+                'max:255',
+                function (string $attribute, $value, $fail) use ($request) {
+                    if ($value === null || $value === '') {
+                        return;
+                    }
+
+                    if (preg_match('/^tiquets\.(\d+)\.butaca$/', $attribute, $matches)) {
+                        $index = (int) $matches[1];
+                        $type = data_get($request->input('tiquets'), "$index.type");
+
+                        if ($type !== 'preu_butaca') {
+                            $fail('Només els tiquets de tipus "preu_butaca" poden tenir una butaca.');
+                        }
+                    }
+                },
+            ],
             'status' => 'nullable|string|max:50',
         ]);
 
