@@ -1,10 +1,12 @@
 <script setup>
 import { onMounted, ref } from "vue";
 import EventsList from "@/shared/organisms/EventsList.vue";
-import { getEvents, createEvent, updateEvent } from "@/services/eventsApi";
+import { getEvents, createEvent, updateEvent, deleteEvent } from "@/services/eventsApi";
 import { updateTiquet } from "@/services/tiquetsApi";
 import EventFormModal from "@/shared/organisms/EventFormModal.vue";
 import SuccessModal from "@/shared/organisms/SuccessModal.vue";
+import ConfirmDeleteModal from "@/shared/organisms/ConfirmDeleteModal.vue";
+import EventPreviewModal from "@/shared/organisms/EventPreviewModal.vue";
 
 const events = ref([]);
 const loadingList = ref(false);
@@ -19,6 +21,7 @@ const selectedEvent = ref(null);
 const eventToDelete = ref(null);
 
 const saving = ref(false);
+const deleting = ref(false);
 const formErrors = ref({});
 
 const isSuccessOpen = ref(false);
@@ -92,6 +95,28 @@ const handleCreateRequest = () => {
 const openSuccess = (message) => {
   successMessage.value = message;
   isSuccessOpen.value = true;
+};
+
+const handleConfirmDelete = async () => {
+  if (!eventToDelete.value || !eventToDelete.value.id) {
+    isDeleteOpen.value = false;
+    return;
+  }
+
+  deleting.value = true;
+
+  try {
+    await deleteEvent(eventToDelete.value.id);
+    events.value = events.value.filter((ev) => ev.id !== eventToDelete.value.id);
+    isDeleteOpen.value = false;
+    eventToDelete.value = null;
+    openSuccess("Esdeveniment eliminat correctament.");
+  } catch (error) {
+    listError.value =
+      error?.message || "No s'ha pogut eliminar l'esdeveniment.";
+  } finally {
+    deleting.value = false;
+  }
 };
 
 const handleFormSubmit = async (updatedEvent, localValidationErrors, mode) => {
@@ -250,6 +275,22 @@ const handleFormSubmit = async (updatedEvent, localValidationErrors, mode) => {
       :visible="isSuccessOpen"
       :message="successMessage"
       @close="isSuccessOpen = false"
+    />
+
+    <ConfirmDeleteModal
+      v-if="isDeleteOpen && eventToDelete"
+      :visible="isDeleteOpen"
+      :event-name="eventToDelete?.nom ?? ''"
+      :loading="deleting"
+      @confirm="handleConfirmDelete"
+      @cancel="isDeleteOpen = false"
+    />
+
+    <EventPreviewModal
+      v-if="isPreviewOpen && selectedEvent"
+      :visible="isPreviewOpen"
+      :event="selectedEvent"
+      @close="isPreviewOpen = false"
     />
   </div>
 </template>
