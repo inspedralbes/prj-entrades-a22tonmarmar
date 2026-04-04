@@ -10,7 +10,7 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits(["preview", "edit", "delete"]);
+const emit = defineEmits(["preview", "edit", "delete", "orders"]);
 </script>
 
 <template>
@@ -48,6 +48,12 @@ const emit = defineEmits(["preview", "edit", "delete"]);
       </BaseButton>
       <BaseButton variant="secondary" @click="emit('edit')">
         <Icon name="heroicons-outline:pencil-square" class="h-4 w-4" />
+      </BaseButton>
+      <BaseButton variant="secondary" @click="emit('orders')">
+        <Icon
+          name="heroicons-outline:clipboard-document-list"
+          class="h-4 w-4"
+        />
       </BaseButton>
       <BaseButton variant="danger" @click="emit('delete')">
         <Icon name="heroicons-outline:trash" class="h-4 w-4" />

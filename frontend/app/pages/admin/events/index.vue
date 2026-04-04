@@ -12,6 +12,8 @@ const events = ref([]);
 const loadingList = ref(false);
 const listError = ref(null);
 
+const router = useRouter();
+
 const isCreateOpen = ref(false);
 const isEditOpen = ref(false);
 const isDeleteOpen = ref(false);
@@ -51,6 +53,11 @@ const handlePreviewRequest = (event) => {
 
 const handleEditRequest = (event) => {
   openEdit(event);
+};
+
+const handleOrdersRequest = (event) => {
+  if (!event || !event.id) return;
+  router.push(`/admin/events/order/${event.id}`);
 };
 
 const handleDeleteRequest = (event) => {
@@ -240,6 +247,7 @@ const handleFormSubmit = async (updatedEvent, localValidationErrors, mode) => {
       @create="handleCreateRequest"
       @preview="handlePreviewRequest"
       @edit="handleEditRequest"
+      @orders="handleOrdersRequest"
       @delete="handleDeleteRequest"
     />
 

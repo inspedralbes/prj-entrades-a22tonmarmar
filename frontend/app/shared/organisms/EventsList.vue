@@ -18,7 +18,7 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits(["create", "preview", "edit", "delete"]);
+const emit = defineEmits(["create", "preview", "edit", "delete", "orders"]);
 </script>
 
 <template>
@@ -63,6 +63,7 @@ const emit = defineEmits(["create", "preview", "edit", "delete"]);
             :event="event"
             @preview="emit('preview', event)"
             @edit="emit('edit', event)"
+            @orders="emit('orders', event)"
             @delete="emit('delete', event)"
           />
         </div>
