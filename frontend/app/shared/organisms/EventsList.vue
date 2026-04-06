@@ -18,15 +18,29 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits(["create", "preview", "edit", "delete", "orders"]);
+const emit = defineEmits([
+  "create",
+  "preview",
+  "edit",
+  "delete",
+  "orders",
+  "logout",
+]);
 </script>
 
 <template>
   <section class="min-h-screen bg-slate-950 py-4 sm:py-8 text-slate-100">
-    <div class="mx-auto flex h-full max-w-5xl flex-col gap-4 sm:gap-6 px-3 sm:px-4">
-      <header class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+    <div
+      class="mx-auto flex h-full max-w-5xl flex-col gap-4 sm:gap-6 px-3 sm:px-4"
+    >
+      <header
+        class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
+      >
         <BaseHeading :level="1">Gestió d'esdeveniments</BaseHeading>
-        <div class="flex justify-start sm:justify-end">
+        <div class="flex items-center justify-start gap-2 sm:justify-end">
+          <BaseButton variant="secondary" @click="emit('logout')">
+            Tancar sessió
+          </BaseButton>
           <BaseButton @click="emit('create')">NOU EVENT</BaseButton>
         </div>
       </header>

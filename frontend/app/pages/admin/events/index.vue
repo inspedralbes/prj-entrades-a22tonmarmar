@@ -7,12 +7,18 @@ import EventFormModal from "@/shared/organisms/EventFormModal.vue";
 import SuccessModal from "@/shared/organisms/SuccessModal.vue";
 import ConfirmDeleteModal from "@/shared/organisms/ConfirmDeleteModal.vue";
 import EventPreviewModal from "@/shared/organisms/EventPreviewModal.vue";
+import { useAuthStore } from "@/stores/auth";
+
+definePageMeta({
+  middleware: "auth",
+});
 
 const events = ref([]);
 const loadingList = ref(false);
 const listError = ref(null);
 
 const router = useRouter();
+const authStore = useAuthStore();
 
 const isCreateOpen = ref(false);
 const isEditOpen = ref(false);
@@ -102,6 +108,11 @@ const handleCreateRequest = () => {
 const openSuccess = (message) => {
   successMessage.value = message;
   isSuccessOpen.value = true;
+};
+
+const handleLogout = () => {
+  authStore.clearAuth();
+  router.push("/admin");
 };
 
 const handleConfirmDelete = async () => {
@@ -249,6 +260,7 @@ const handleFormSubmit = async (updatedEvent, localValidationErrors, mode) => {
       @edit="handleEditRequest"
       @orders="handleOrdersRequest"
       @delete="handleDeleteRequest"
+      @logout="handleLogout"
     />
 
     <EventFormModal

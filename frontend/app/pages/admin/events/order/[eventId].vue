@@ -3,6 +3,10 @@ import { onMounted, ref } from "vue";
 import OrdersList from "@/shared/organisms/OrdersList.vue";
 import { getOrdersByEvent } from "@/services/ordersApi";
 
+definePageMeta({
+  middleware: "auth",
+});
+
 const route = useRoute();
 
 const orders = ref([]);
