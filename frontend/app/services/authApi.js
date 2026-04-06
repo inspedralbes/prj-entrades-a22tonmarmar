@@ -1,4 +1,4 @@
-import { useApiClient } from "~/app/utils/apiClient";
+import { useApiClient } from "~/utils/apiClient";
 
 export function useAuthApi() {
   const api = useApiClient();
