@@ -18,18 +18,11 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits([
-  "create",
-  "preview",
-  "edit",
-  "delete",
-  "orders",
-  "logout",
-]);
+const emit = defineEmits(["create", "preview", "edit", "delete", "orders"]);
 </script>
 
 <template>
-  <section class="min-h-screen bg-slate-950 py-4 sm:py-8 text-slate-100">
+  <section class="h-full py-2 sm:py-4 text-slate-100">
     <div
       class="mx-auto flex h-full max-w-5xl flex-col gap-4 sm:gap-6 px-3 sm:px-4"
     >
@@ -38,9 +31,6 @@ const emit = defineEmits([
       >
         <BaseHeading :level="1">Gestió d'esdeveniments</BaseHeading>
         <div class="flex items-center justify-start gap-2 sm:justify-end">
-          <BaseButton variant="secondary" @click="emit('logout')">
-            Tancar sessió
-          </BaseButton>
           <BaseButton @click="emit('create')">NOU EVENT</BaseButton>
         </div>
       </header>
@@ -67,10 +57,7 @@ const emit = defineEmits([
           Encara no hi ha esdeveniments.
         </div>
 
-        <div
-          v-else
-          class="space-y-2 text-sm text-slate-100 max-h-[calc(100vh-220px)] overflow-y-auto pr-3 sm:pr-5"
-        >
+        <div v-else class="space-y-2 text-sm text-slate-100 pr-1 sm:pr-2">
           <EventListItem
             v-for="event in props.events"
             :key="event.id"

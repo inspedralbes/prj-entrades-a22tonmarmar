@@ -31,7 +31,7 @@ const handleSubmit = () => {
 
 <template>
   <section
-    class="min-h-screen flex items-center justify-center bg-slate-950 text-slate-50 px-4"
+    class="flex items-center justify-center bg-slate-950 text-slate-50 px-4 py-10"
   >
     <div
       class="w-full max-w-md rounded-xl border border-pink-700/40 bg-slate-900/90 p-6 shadow-xl"
@@ -63,7 +63,11 @@ const handleSubmit = () => {
           {{ props.error }}
         </p>
 
-        <BaseButton class="w-full justify-center" type="submit" :disabled="props.loading">
+        <BaseButton
+          class="w-full justify-center"
+          type="submit"
+          :disabled="props.loading"
+        >
           <span v-if="!props.loading">Entrar</span>
           <span v-else>Entrant...</span>
         </BaseButton>

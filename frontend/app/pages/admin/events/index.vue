@@ -1,24 +1,29 @@
 <script setup>
 import { onMounted, ref } from "vue";
+import { useRouter } from "vue-router";
 import EventsList from "@/shared/organisms/EventsList.vue";
-import { getEvents, createEvent, updateEvent, deleteEvent } from "@/services/eventsApi";
+import {
+  getEvents,
+  createEvent,
+  updateEvent,
+  deleteEvent,
+} from "@/services/eventsApi";
 import { updateTiquet } from "@/services/tiquetsApi";
 import EventFormModal from "@/shared/organisms/EventFormModal.vue";
 import SuccessModal from "@/shared/organisms/SuccessModal.vue";
 import ConfirmDeleteModal from "@/shared/organisms/ConfirmDeleteModal.vue";
 import EventPreviewModal from "@/shared/organisms/EventPreviewModal.vue";
-import { useAuthStore } from "@/stores/auth";
+import AdminLayout from "@/pages/admin/layout.vue";
 
 definePageMeta({
   middleware: "auth",
 });
 
+const router = useRouter();
+
 const events = ref([]);
 const loadingList = ref(false);
 const listError = ref(null);
-
-const router = useRouter();
-const authStore = useAuthStore();
 
 const isCreateOpen = ref(false);
 const isEditOpen = ref(false);
@@ -110,11 +115,6 @@ const openSuccess = (message) => {
   isSuccessOpen.value = true;
 };
 
-const handleLogout = () => {
-  authStore.clearAuth();
-  router.push("/admin");
-};
-
 const handleConfirmDelete = async () => {
   if (!eventToDelete.value || !eventToDelete.value.id) {
     isDeleteOpen.value = false;
@@ -125,7 +125,9 @@ const handleConfirmDelete = async () => {
 
   try {
     await deleteEvent(eventToDelete.value.id);
-    events.value = events.value.filter((ev) => ev.id !== eventToDelete.value.id);
+    events.value = events.value.filter(
+      (ev) => ev.id !== eventToDelete.value.id,
+    );
     isDeleteOpen.value = false;
     eventToDelete.value = null;
     openSuccess("Esdeveniment eliminat correctament.");
@@ -250,7 +252,7 @@ const handleFormSubmit = async (updatedEvent, localValidationErrors, mode) => {
 </script>
 
 <template>
-  <div class="min-h-screen bg-slate-950 text-slate-100">
+  <AdminLayout>
     <EventsList
       :events="events"
       :loading="loadingList"
@@ -260,7 +262,6 @@ const handleFormSubmit = async (updatedEvent, localValidationErrors, mode) => {
       @edit="handleEditRequest"
       @orders="handleOrdersRequest"
       @delete="handleDeleteRequest"
-      @logout="handleLogout"
     />
 
     <EventFormModal
@@ -312,5 +313,5 @@ const handleFormSubmit = async (updatedEvent, localValidationErrors, mode) => {
       :event="selectedEvent"
       @close="isPreviewOpen = false"
     />
-  </div>
+  </AdminLayout>
 </template>
