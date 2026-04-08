@@ -1,7 +1,7 @@
 <script setup>
 import BaseButton from "@/shared/atoms/BaseButton.vue";
 import BaseHeading from "@/shared/atoms/BaseHeading.vue";
-import { formatEventDate } from "@/mappers/dateMapper";
+import { formatEventDate } from "~/services/mappers/dateMapper";
 
 const props = defineProps({
   event: {

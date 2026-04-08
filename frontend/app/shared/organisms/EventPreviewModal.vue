@@ -3,7 +3,7 @@ import { computed } from "vue";
 import BaseModal from "@/shared/atoms/BaseModal.vue";
 import BaseButton from "@/shared/atoms/BaseButton.vue";
 import BaseHeading from "@/shared/atoms/BaseHeading.vue";
-import { formatEventDate } from "@/mappers/dateMapper";
+import { formatEventDate } from "~/services/mappers/dateMapper";
 
 const props = defineProps({
   visible: {
@@ -70,7 +70,10 @@ const imageSrc = computed(() => {
           </span>
         </div>
 
-        <p v-if="event.descripcio" class="whitespace-pre-line text-sm text-slate-100">
+        <p
+          v-if="event.descripcio"
+          class="whitespace-pre-line text-sm text-slate-100"
+        >
           {{ event.descripcio }}
         </p>
 

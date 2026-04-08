@@ -4,7 +4,10 @@ import BaseModal from "@/shared/atoms/BaseModal.vue";
 import BaseButton from "@/shared/atoms/BaseButton.vue";
 import BaseInput from "@/shared/atoms/BaseInput.vue";
 import FormField from "@/shared/molecules/FormField.vue";
-import { toDateInputValue, toTimeInputValue } from "@/mappers/dateMapper";
+import {
+  toDateInputValue,
+  toTimeInputValue,
+} from "~/services/mappers/dateMapper";
 
 const props = defineProps({
   visible: {
