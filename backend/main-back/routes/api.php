@@ -8,6 +8,7 @@ use App\Http\Controllers\TiquetController;
 Route::post('login', [AuthController::class, 'login']);
 
 Route::get('/events', [EventController::class, 'index']);
+Route::get('/events/sala/{nom}', [EventController::class, 'indexByName']);
 
 Route::middleware('auth:sanctum')->group(function () {
 	Route::apiResource('events', EventController::class)->except(['index']);

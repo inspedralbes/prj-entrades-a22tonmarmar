@@ -25,7 +25,15 @@ const normalizedError = computed(() => {
 const handleEventSelection = (event) => {
   if (!event?.id) return;
   if (event.sold_out) return;
-  router.push(`/events/${event.id}`);
+  const rawName = String(event.nom || "event");
+  const slug = rawName
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[^\w\s-]/g, "")
+    .trim()
+    .replace(/\s+/g, "-");
+
+  router.push(`/events/${slug}`);
 };
 </script>
 

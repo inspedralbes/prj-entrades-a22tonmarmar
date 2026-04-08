@@ -18,6 +18,10 @@ class EventController extends Controller
         return Event::with('tiquet')->get();
     }
 
+    public function indexByName($name){
+        return Event::where('nom', $name)->firstOrFail();
+    }
+
     /**
      * Store a newly created resource in storage.
      */
