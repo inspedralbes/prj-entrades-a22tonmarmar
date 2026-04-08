@@ -7,8 +7,10 @@ use App\Http\Controllers\TiquetController;
 
 Route::post('login', [AuthController::class, 'login']);
 
+Route::get('/events', [EventController::class, 'index']);
+
 Route::middleware('auth:sanctum')->group(function () {
-	Route::apiResource('events', EventController::class);
+	Route::apiResource('events', EventController::class)->except(['index']);
 	Route::apiResource('tiquets', TiquetController::class);
 	Route::apiResource('orders', OrderController::class)->only(['store']);
 	Route::get('orders/event/{event}', [OrderController::class, 'ordersByEvent']);

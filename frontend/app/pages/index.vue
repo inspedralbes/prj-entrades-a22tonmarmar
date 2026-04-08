@@ -1,38 +1,41 @@
 <script setup>
-import EventPreviewModal from "~/shared/organisms/EventPreviewModal.vue";
 import Layout from "./layout.vue";
+import EventsPreviewList from "~/shared/organisms/EventsPreviewList.vue";
+import { getEvents } from "~/services/eventsApi";
 
 const router = useRouter();
 
-const events = ref([]);
-const loadingList = ref(false);
-const listError = ref(null);
+// SSR: carreguem els esdeveniments al servidor amb useAsyncData
+const { data, pending, error } = await useAsyncData("public-events", () =>
+  getEvents(),
+);
 
-const fetchEvents = async () => {
-  loadingList.value = true;
-  listError.value = null;
+const events = computed(() => {
+  const raw = data.value;
+  if (Array.isArray(raw)) return raw;
+  return raw?.data ?? [];
+});
 
-  try {
-    const data = await getEvents();
-    events.value = Array.isArray(data) ? data : (data?.data ?? []);
-  } catch (error) {
-    listError.value =
-      error?.message || "No s'han pogut carregar els esdeveniments.";
-  } finally {
-    loadingList.value = false;
-  }
+const normalizedError = computed(() => {
+  if (!error.value) return null;
+  if (typeof error.value === "string") return error.value;
+  return error.value?.message || "No s'han pogut carregar els esdeveniments.";
+});
+
+const handleEventSelection = (event) => {
+  if (!event?.id) return;
+  if (event.sold_out) return;
+  router.push(`/events/${event.id}`);
 };
-
-const handleEventSelection = () => {
-  router.push('/')
-}
-
-onMounted(fetchEvents);
 </script>
 
 <template>
-  <Layout />
-  <main>
-    <EventPreviewModal events="events" />
-  </main>
+  <Layout>
+    <EventsPreviewList
+      :events="events"
+      :loading="pending"
+      :error="normalizedError"
+      @select="handleEventSelection"
+    />
+  </Layout>
 </template>
