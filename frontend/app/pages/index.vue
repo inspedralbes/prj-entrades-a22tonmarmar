@@ -2,12 +2,16 @@
 import Layout from "./layout.vue";
 import EventsPreviewList from "~/shared/organisms/EventsPreviewList.vue";
 import { getEvents } from "~/services/eventsApi";
+import { useBookingStore } from "~/stores/useBookingStore";
 
 const router = useRouter();
+const bookingStore = useBookingStore();
 
 // SSR: carreguem els esdeveniments al servidor amb useAsyncData
-const { data, pending, error } = await useAsyncData("public-events", () =>
-  getEvents(),
+const { data, pending, error } = await useAsyncData(
+  "public-events",
+  () => getEvents(),
+  bookingStore.clearSelectedEvent(),
 );
 
 const events = computed(() => {
@@ -25,6 +29,10 @@ const normalizedError = computed(() => {
 const handleEventSelection = (event) => {
   if (!event?.id) return;
   if (event.sold_out) return;
+
+  // Guardem l'esdeveniment seleccionat al store de Booking
+  bookingStore.setSelectedEvent(event);
+
   const rawName = String(event.nom || "event");
   const slug = rawName
     .toLowerCase()
