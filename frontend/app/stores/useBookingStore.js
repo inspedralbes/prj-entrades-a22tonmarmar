@@ -23,6 +23,30 @@ export const useBookingStore = defineStore("booking", {
       state.selection.barricada +
       state.selection.pista +
       state.selection.butaca.length,
+    canAddBarricada: (state) => {
+      const total =
+        state.selection.barricada +
+        state.selection.pista +
+        state.selection.butaca.length;
+      return (
+        total < 6 &&
+        state.availability.barricada > 0 &&
+        state.selection.barricada < state.availability.barricada
+      );
+    },
+    canAddPista: (state) => {
+      const total =
+        state.selection.barricada +
+        state.selection.pista +
+        state.selection.butaca.length;
+      return (
+        total < 6 &&
+        state.availability.pista > 0 &&
+        state.selection.pista < state.availability.pista
+      );
+    },
+    canRemoveBarricada: (state) => state.selection.barricada > 0,
+    canRemovePista: (state) => state.selection.pista > 0,
     // Estat visual per a les zones agregades a partir de la disponibilitat i la selecció
     barricadaState: (state) => {
       if (state.selection.barricada > 0) return "selected";
@@ -74,6 +98,22 @@ export const useBookingStore = defineStore("booking", {
         pista: 0,
         butaca: [],
       };
+    },
+    incrementBarricada() {
+      if (!this.canAddBarricada) return;
+      this.selection.barricada += 1;
+    },
+    decrementBarricada() {
+      if (!this.canRemoveBarricada) return;
+      this.selection.barricada -= 1;
+    },
+    incrementPista() {
+      if (!this.canAddPista) return;
+      this.selection.pista += 1;
+    },
+    decrementPista() {
+      if (!this.canRemovePista) return;
+      this.selection.pista -= 1;
     },
     toggleZone(zone) {
       if (zone !== "barricada" && zone !== "pista") return;
