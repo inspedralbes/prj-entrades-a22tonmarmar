@@ -17,6 +17,7 @@ import SeatZonesMap from "~/shared/organisms/SeatZonesMap.vue";
 import OrderSummaryPanel from "~/shared/organisms/OrderSummaryPanel.vue";
 import MobileSummaryDrawer from "~/shared/organisms/MobileSummaryDrawer.vue";
 import BaseButton from "~/shared/atoms/BaseButton.vue";
+import SuccessModal from "~/shared/organisms/SuccessModal.vue";
 
 const router = useRouter();
 const bookingStore = useBookingStore();
@@ -34,6 +35,8 @@ const isMobileDrawerOpen = ref(false);
 const userClosedSummary = ref(false);
 const isProcessing = ref(false);
 const currentEventRoomId = ref(null);
+const isResultModalOpen = ref(false);
+const resultModalMessage = ref("");
 let roomUpdatedHandler = null;
 
 onMounted(async () => {
@@ -253,10 +256,12 @@ const handleGoToCheckout = async () => {
     );
 
     if (!result || result.success === false) {
-      // TODO: mostrar missatge d'error d'una forma més amable
-      console.error(
-        result?.message || "Error desconegut en iniciar el checkout",
-      );
+      const message =
+        result?.message ||
+        "L'operació ha tingut algun problema, torna-hi una altra vegada";
+      console.error(message);
+      resultModalMessage.value = message;
+      isResultModalOpen.value = true;
       return;
     }
 
@@ -272,12 +277,20 @@ const handleGoToCheckout = async () => {
         query: { orderId },
       });
     } else {
-      console.error("No s'ha rebut cap order_id en iniciar el checkout");
+      const message = "No s'ha rebut cap order_id en iniciar el checkout";
+      console.error(message);
+      resultModalMessage.value =
+        "L'operació ha tingut algun problema, torna-hi una altra vegada";
+      isResultModalOpen.value = true;
     }
   } catch (error) {
-    // TODO: mostrar missatge d'error d'una forma més amable
     console.error("[FLOW][front] handleGoToCheckout error", error);
-    console.error(error?.message || "Error al comunicar amb el servidor");
+    const message =
+      error?.message || "Error al comunicar amb el servidor de comandes.";
+    console.error(message);
+    resultModalMessage.value =
+      "L'operació ha tingut algun problema, torna-hi una altra vegada";
+    isResultModalOpen.value = true;
   } finally {
     isProcessing.value = false;
   }
@@ -332,6 +345,13 @@ const handleGoToCheckout = async () => {
       :loading="isProcessing"
       @close="handleCloseMobileDrawer"
       @go-to-checkout="handleGoToCheckout"
+    />
+
+    <SuccessModal
+      :visible="isResultModalOpen"
+      type="error"
+      :message="resultModalMessage"
+      @close="isResultModalOpen = false"
     />
   </section>
 </template>

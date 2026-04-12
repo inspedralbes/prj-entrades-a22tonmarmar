@@ -6,6 +6,7 @@ import { useBookingStore } from "~/stores/useBookingStore";
 import BaseInput from "~/shared/atoms/BaseInput.vue";
 import BaseButton from "~/shared/atoms/BaseButton.vue";
 import FormField from "~/shared/molecules/FormField.vue";
+import SuccessModal from "~/shared/organisms/SuccessModal.vue";
 import { cancelOrder, confirmOrder } from "~/services/ordersApi";
 
 const route = useRoute();
@@ -20,6 +21,10 @@ const isCancelling = ref(false);
 const isCompleted = ref(false);
 const globalError = ref("");
 const hasTimedOut = ref(false);
+
+const isResultModalOpen = ref(false);
+const resultModalType = ref("success");
+const resultModalMessage = ref("");
 
 let intervalId = null;
 
@@ -158,6 +163,10 @@ async function handleConfirm() {
     if (!result || result.success === false || !result.id) {
       globalError.value =
         result?.message || "No s'ha pogut completar la compra.";
+      resultModalType.value = "error";
+      resultModalMessage.value =
+        "L'operació ha tingut algun problema, torna-hi una altra vegada";
+      isResultModalOpen.value = true;
       return;
     }
 
@@ -173,11 +182,17 @@ async function handleConfirm() {
       intervalId = null;
     }
 
-    router.push("/events/confirmation");
+    resultModalType.value = "success";
+    resultModalMessage.value = "L'operació ha sigut correcta";
+    isResultModalOpen.value = true;
   } catch (error) {
     console.error("[FLOW][front] handleConfirm error", error);
     globalError.value =
       error?.message || "Error al comunicar amb el servidor de comandes.";
+    resultModalType.value = "error";
+    resultModalMessage.value =
+      "L'operació ha tingut algun problema, torna-hi una altra vegada";
+    isResultModalOpen.value = true;
   } finally {
     isSubmitting.value = false;
   }
@@ -224,6 +239,14 @@ async function handleTimeout() {
   if (hasTimedOut.value || isCompleted.value) return;
   hasTimedOut.value = true;
   await performCancel(true);
+}
+
+function handleResultModalClose() {
+  isResultModalOpen.value = false;
+
+  if (resultModalType.value === "success") {
+    router.push("/events/confirmation");
+  }
 }
 </script>
 
@@ -386,5 +409,12 @@ async function handleTimeout() {
         </p>
       </aside>
     </div>
+
+    <SuccessModal
+      :visible="isResultModalOpen"
+      :type="resultModalType"
+      :message="resultModalMessage"
+      @close="handleResultModalClose"
+    />
   </section>
 </template>
