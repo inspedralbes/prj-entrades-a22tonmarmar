@@ -1,8 +1,9 @@
 <script setup>
 import { computed, onMounted, onUnmounted, ref, watch } from "vue";
+import { useRouter } from "vue-router";
 import { storeToRefs } from "pinia";
 import { useBookingStore } from "~/stores/useBookingStore";
-import { validateReserveOrder } from "~/services/ordersApi";
+import { startCheckout } from "~/services/ordersApi";
 import { getEventRoom } from "~/services/eventsApi";
 import {
   connectSockets,
@@ -16,6 +17,8 @@ import SeatZonesMap from "~/shared/organisms/SeatZonesMap.vue";
 import OrderSummaryPanel from "~/shared/organisms/OrderSummaryPanel.vue";
 import MobileSummaryDrawer from "~/shared/organisms/MobileSummaryDrawer.vue";
 import BaseButton from "~/shared/atoms/BaseButton.vue";
+
+const router = useRouter();
 
 const bookingStore = useBookingStore();
 const {
@@ -73,7 +76,10 @@ onMounted(async () => {
       console.log("[WS client] room_updated payload", payload);
       const room = payload?.room || payload;
       const availability = mapRoomToAvailability(room);
-      console.log("[FLOW][front] roomUpdatedHandler → availability", availability);
+      console.log(
+        "[FLOW][front] roomUpdatedHandler → availability",
+        availability,
+      );
       bookingStore.setAvailability(availability);
     };
 
@@ -92,18 +98,15 @@ onUnmounted(() => {
   }
 });
 
-watch(
-  totalSelected,
-  (newValue, oldValue) => {
-    if (newValue === 0) {
-      isSummaryOpen.value = false;
-      isMobileDrawerOpen.value = false;
-      userClosedSummary.value = false;
-    } else if (oldValue === 0 && newValue > 0 && !userClosedSummary.value) {
-      isSummaryOpen.value = true;
-    }
-  },
-);
+watch(totalSelected, (newValue, oldValue) => {
+  if (newValue === 0) {
+    isSummaryOpen.value = false;
+    isMobileDrawerOpen.value = false;
+    userClosedSummary.value = false;
+  } else if (oldValue === 0 && newValue > 0 && !userClosedSummary.value) {
+    isSummaryOpen.value = true;
+  }
+});
 
 const zones = computed(() => ({
   barricada: {
@@ -185,7 +188,8 @@ function mapRoomToAvailability(room) {
     };
   }
 
-  const barricada = (room.barricada_total || 0) - (room.barricada_reserved || 0);
+  const barricada =
+    (room.barricada_total || 0) - (room.barricada_reserved || 0);
   const pista = (room.pista_total || 0) - (room.pista_reserved || 0);
 
   const butaca = Array.from({ length: 10 }, (_, index) => {
@@ -236,13 +240,18 @@ const handleGoToCheckout = async () => {
 
   isProcessing.value = true;
   try {
-    const result = await validateReserveOrder(event.id, payload);
+    const result = await startCheckout(event.id, payload);
 
-    console.log("[FLOW][front] handleGoToCheckout response from backend", result);
+    console.log(
+      "[FLOW][front] handleGoToCheckout response from backend",
+      result,
+    );
 
     if (!result || result.success === false) {
       // TODO: mostrar missatge d'error d'una forma més amable
-      console.error(result?.message || "Error desconegut en validar la reserva");
+      console.error(
+        result?.message || "Error desconegut en validar la reserva",
+      );
       return;
     }
 
@@ -251,6 +260,15 @@ const handleGoToCheckout = async () => {
     bookingStore.setAvailability(availability);
     // Després de reservar amb èxit, netegem la selecció de l'usuari
     bookingStore.resetSelection();
+
+    const orderId = result.order_id;
+
+    if (orderId) {
+      router.push({
+        name: "events-checkout",
+        query: { orderId },
+      });
+    }
   } catch (error) {
     // TODO: mostrar missatge d'error d'una forma més amable
     console.error("[FLOW][front] handleGoToCheckout error", error);
@@ -298,10 +316,7 @@ const handleGoToCheckout = async () => {
     </div>
 
     <!-- Botó flotant per obrir el drawer en mòbil -->
-    <div
-      v-if="totalSelected > 0"
-      class="fixed bottom-4 right-4 z-30 md:hidden"
-    >
+    <div v-if="totalSelected > 0" class="fixed bottom-4 right-4 z-30 md:hidden">
       <BaseButton @click="handleOpenMobileDrawer">
         Resum ({{ totalSelected }})
       </BaseButton>
