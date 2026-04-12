@@ -1,0 +1,76 @@
+name: Deploy and Update Services
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    name: Full Deploy Process
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install SSH Key
+        uses: shimataro/ssh-key-action@v2
+        with:
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          known_hosts: unnecessary
+          if_key_exists: replace
+
+      - name: Add to Known Hosts
+        run: |
+          echo "Connecting to server ${{ secrets.IP_SERVER }}..."
+          mkdir -p ~/.ssh
+          ssh-keyscan -H ${{ secrets.IP_SERVER }} >> ~/.ssh/known_hosts 2>/dev/null
+          chmod 600 ~/.ssh/known_hosts
+
+      - name: Update, Configure and Deploy
+        run: |
+          ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ${{ secrets.USER_SERVER }}@${{ secrets.IP_SERVER }} bash -s << 'EOF'
+            # Acceder al directorio del proyecto
+            cd /prj-entrades-a22tonmarmar || exit
+
+            echo "Baixant canvis de Git..."
+            git pull origin main
+
+            echo "Configurant fitxer .env..."
+            echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
+
+            echo "Configurant fitxer .env de laravel-api..."
+            cd ./backend/main-back
+            echo "Copiant fitxer .env.PROD a .env..."
+            cp .env.example .env
+            echo "CONFIG POSTGRES"
+            echo "DB_CONNECTION=${{ secrets.DB_CONNECTION }}" >> .env
+            echo "DB_HOST=${{ secrets.DB_HOST }}" >> .env
+            echo "DB_PORT=${{ secrets.DB_PORT }}" >> .env
+            echo "DB_DATABASE=${{ secrets.DB_DATABASE }}" >> .env
+            echo "DB_USERNAME=${{ secrets.DB_USERNAME }}" >> .env
+            echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
+            echo "SOCKETS_BASE_URL"=${{ secrets.SOCKETS_BASE_URL}}" >> .env
+            echo "ADMIN_PASSWORD"=${{ secrets.ADMIN_PASSWORD}}" >> .env
+            echo "ADMIN_EMAIL"=${{ secrets.ADMIN_EMAIL}}" >> .env
+            cd ../..
+
+            echo "Configurant fitxer .env de node..."
+            cd ./back/socket-back
+            echo "Copiant fitxer .env.PROD a .env..."
+            echo "CORS_ORIGIN"=${{ secrets.CORS_ORIGIN}}" >> .env
+            cd ../..
+
+            echo "Configurant fitxer .env de frontend..."
+            cd ./frontend
+            echo "NUXT_API_BASE=${{ secrets.NUXT_API_BASE }}" > .env
+            echo "NUXT_SOCKET_URL=${{ secrets.NUXT_SOCKET_URL }}" >> .env
+            cd ..
+
+            echo "Configuració completada."
+            echo "Desplegar serveis"
+            docker compose -f compose.PROD.yml up -d --build
+
+            echo "Desplegament finalitzat amb èxit!"
+
+          EOF
