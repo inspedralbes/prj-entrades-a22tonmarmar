@@ -15,6 +15,8 @@ export const useBookingStore = defineStore("booking", {
       pista: 0,
       butaca: [], // ['A-1', 'A-2']
     },
+    // Dades de la comanda completada, per a la pantalla de confirmació
+    completedOrder: null,
   }),
   getters: {
     // !! fa que en cas de ser null or undefined, torni false
@@ -73,6 +75,7 @@ export const useBookingStore = defineStore("booking", {
         return { ...seat, uiState: "available" };
       });
     },
+    hasCompletedOrder: (state) => !!state.completedOrder,
   },
   actions: {
     setSelectedEvent(event) {
@@ -98,6 +101,12 @@ export const useBookingStore = defineStore("booking", {
         pista: 0,
         butaca: [],
       };
+    },
+    setCompletedOrder(order) {
+      this.completedOrder = order || null;
+    },
+    clearCompletedOrder() {
+      this.completedOrder = null;
     },
     // Elimina qualsevol selecció que ja no sigui possible amb la disponibilitat actual
     reconcileSelectionWithAvailability() {

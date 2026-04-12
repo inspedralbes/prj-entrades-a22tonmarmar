@@ -19,3 +19,9 @@ export function validateReserveOrder(eventId, payload) {
 
   return apiClient.post(customURL, payload);
 }
+
+// Crea una comanda d'entrades per a un event
+export function createOrder(payload) {
+  const apiClient = useApiClient();
+  return apiClient.post(baseURL, payload);
+}

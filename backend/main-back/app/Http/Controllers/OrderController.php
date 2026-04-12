@@ -42,18 +42,52 @@ class OrderController extends Controller
             ],
             'status' => 'nullable|string|max:50',
         ]);
+        $event = Event::with('tiquet')->findOrFail($validated['event_id']);
 
-        $numTiquets = count($validated['tiquets']);
+        if (! $event->tiquet) {
+            return response()->json([
+                'message' => 'No es poden calcular els preus perquè l\'esdeveniment no té tiquet associat.',
+            ], 422);
+        }
+
+        $baseTicket = $event->tiquet;
+
+        $tiquets = $validated['tiquets'];
+        $total = 0.0;
+
+        foreach ($tiquets as $index => $ticket) {
+            $type = $ticket['type'] ?? null;
+
+            if ($type === 'preu_barricada') {
+                $price = (float) $baseTicket->preu_barricada;
+            } elseif ($type === 'preu_butaca') {
+                $price = (float) $baseTicket->preu_butaca;
+            } else {
+                // Per defecte, utilitzem el preu base de pista
+                $price = (float) $baseTicket->preu_base;
+            }
+
+            $tiquets[$index]['price'] = $price;
+            $total += $price;
+        }
+
+        $numTiquets = count($tiquets);
 
         $order = Order::create([
             'event_id' => $validated['event_id'],
             'email' => $validated['email'],
             'num_tiquets' => $numTiquets,
-            'tiquets' => $validated['tiquets'],
-            'status' => $validated['status'] ?? null,
+            'tiquets' => $tiquets,
+            // La compra que ve del front s'entén com a completada
+            'status' => $validated['status'] ?? 'completed',
         ]);
 
-        return response()->json($order, 201);
+        // Retornem únicament les dades que el front necessita per a la pantalla de confirmació
+        return response()->json([
+            'id' => $order->id,
+            'tiquets' => $tiquets,
+            'total' => round($total, 2),
+        ], 201);
     }
 
     /**

@@ -1,8 +1,9 @@
 <script setup>
 import { computed, onMounted, onUnmounted, ref, watch } from "vue";
+import { useRouter } from "vue-router";
 import { storeToRefs } from "pinia";
 import { useBookingStore } from "~/stores/useBookingStore";
-import { validateReserveOrder } from "~/services/ordersApi";
+import { createOrder, validateReserveOrder } from "~/services/ordersApi";
 import { getEventRoom } from "~/services/eventsApi";
 import {
   connectSockets,
@@ -11,13 +12,16 @@ import {
   onRoomUpdated,
   offRoomUpdated,
 } from "@/services/socketService";
+import { useAuthStore } from "~/stores/auth";
 import SeatLegend from "~/shared/organisms/SeatLegend.vue";
 import SeatZonesMap from "~/shared/organisms/SeatZonesMap.vue";
 import OrderSummaryPanel from "~/shared/organisms/OrderSummaryPanel.vue";
 import MobileSummaryDrawer from "~/shared/organisms/MobileSummaryDrawer.vue";
 import BaseButton from "~/shared/atoms/BaseButton.vue";
 
+const router = useRouter();
 const bookingStore = useBookingStore();
+const authStore = useAuthStore();
 const {
   barricadaState,
   pistaState,
@@ -220,13 +224,19 @@ const handleGoToCheckout = async () => {
     eventId: event.id,
   });
 
-  const payload = {
+  const selectionSnapshot = {
     barricada: selection.value.barricada || 0,
     pista: selection.value.pista || 0,
     // Convertim "A-1" -> "A1" per al backend
     butaques: Array.isArray(selection.value.butaca)
       ? selection.value.butaca.map((label) => label.replace("A-", "A"))
       : [],
+  };
+
+  const payload = {
+    barricada: selectionSnapshot.barricada,
+    pista: selectionSnapshot.pista,
+    butaques: selectionSnapshot.butaques,
   };
 
   console.log("[FLOW][front] handleGoToCheckout payload to backend", {
@@ -249,8 +259,61 @@ const handleGoToCheckout = async () => {
     const room = result.room;
     const availability = mapRoomToAvailability(room);
     bookingStore.setAvailability(availability);
-    // Després de reservar amb èxit, netegem la selecció de l'usuari
+
+    // Un cop reservades les places, intentem crear la comanda definitiva
+    const tiquets = [];
+
+    // Afegim un tiquet per cada unitat de barricada
+    if (selectionSnapshot.barricada > 0) {
+      for (let i = 0; i < selectionSnapshot.barricada; i += 1) {
+        tiquets.push({ type: "preu_barricada", butaca: null });
+      }
+    }
+
+    // Afegim un tiquet per cada unitat de pista (preu base)
+    if (selectionSnapshot.pista > 0) {
+      for (let i = 0; i < selectionSnapshot.pista; i += 1) {
+        tiquets.push({ type: "preu_base", butaca: null });
+      }
+    }
+
+    // Afegim un tiquet per cada butaca seleccionada
+    if (Array.isArray(selection.value.butaca) && selection.value.butaca.length) {
+      selection.value.butaca.forEach((label) => {
+        tiquets.push({
+          type: "preu_butaca",
+          butaca: label.replace("A-", "A"),
+        });
+      });
+    }
+
+    const email = authStore.user?.email || null;
+
+    const orderPayload = {
+      event_id: event.id,
+      email,
+      tiquets,
+    };
+
+    console.log("[FLOW][front] handleGoToCheckout createOrder payload", {
+      payload: orderPayload,
+    });
+
+    const order = await createOrder(orderPayload);
+
+    console.log("[FLOW][front] handleGoToCheckout order created", order);
+
+    if (!order || !order.id) {
+      console.error("No s'ha pogut crear la comanda correctament");
+      return;
+    }
+
+    bookingStore.setCompletedOrder(order);
+    // Després de reservar i crear la comanda amb èxit, netegem la selecció de l'usuari
     bookingStore.resetSelection();
+
+    // Redirigim a la pantalla de confirmació de compra
+    router.push("/events/confirmation");
   } catch (error) {
     // TODO: mostrar missatge d'error d'una forma més amable
     console.error("[FLOW][front] handleGoToCheckout error", error);
