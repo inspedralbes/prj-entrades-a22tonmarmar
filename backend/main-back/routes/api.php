@@ -18,4 +18,7 @@ Route::middleware('auth:sanctum')->group(function () {
 	Route::apiResource('orders', OrderController::class)->only(['store']);
 	Route::get('orders/event/{event}', [OrderController::class, 'ordersByEvent']);
 	Route::post('events/{event}/orders/validate-reserve', [OrderController::class, 'validateReserve']);
+	Route::post('events/{event}/orders/start-checkout', [OrderController::class, 'startCheckout']);
+	Route::post('orders/{order}/confirm', [OrderController::class, 'confirm']);
+	Route::post('orders/{order}/cancel', [OrderController::class, 'cancel']);
 });
