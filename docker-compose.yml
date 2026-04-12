@@ -29,6 +29,19 @@ services:
       DB_DATABASE: prj-entrades
       DB_USERNAME: user
       DB_PASSWORD: bingus1234
+      SOCKETS_BASE_URL: http://sockets:4000
+    networks:
+      - prj-entrades
+
+  sockets:
+    build:
+      context: ./backend/sockets-server
+      dockerfile: Dockerfile
+    environment:
+      - PORT=4000
+      - CORS_ORIGIN=*
+    ports:
+      - "4000:4000"
     networks:
       - prj-entrades
 

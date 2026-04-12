@@ -35,4 +35,8 @@ return [
         ],
     ],
 
+    'sockets' => [
+        'base_url' => env('SOCKETS_BASE_URL'),
+    ],
+
 ];

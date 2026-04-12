@@ -89,8 +89,8 @@ export const useBookingStore = defineStore("booking", {
         pista: payload?.pista ?? 0,
         butaca: Array.isArray(payload?.butaca) ? payload.butaca : [],
       };
-      // En carregar disponibilitat, netegem la selecció actual
-      this.resetSelection();
+      // Ajustem la selecció existent perquè no contingui elements ja no disponibles
+      this.reconcileSelectionWithAvailability();
     },
     resetSelection() {
       this.selection = {
@@ -98,6 +98,38 @@ export const useBookingStore = defineStore("booking", {
         pista: 0,
         butaca: [],
       };
+    },
+    // Elimina qualsevol selecció que ja no sigui possible amb la disponibilitat actual
+    reconcileSelectionWithAvailability() {
+      // Zones de peu: assegurem que la selecció no superi la disponibilitat
+      if (this.selection.barricada > this.availability.barricada) {
+        this.selection.barricada = this.availability.barricada;
+      }
+      if (this.selection.pista > this.availability.pista) {
+        this.selection.pista = this.availability.pista;
+      }
+
+      // Butaques: eliminem de la selecció les que ja no estiguin "Disponible"
+      const availableSeatValues = this.availability.butaca
+        .filter((seat) => seat.state === "Disponible")
+        .map((seat) => seat.value);
+
+      this.selection.butaca = this.selection.butaca.filter((label) =>
+        availableSeatValues.includes(label),
+      );
+
+      // Clamp final de seguretat al límit global de 6 seients
+      while (this.totalSelected > 6) {
+        if (this.selection.butaca.length > 0) {
+          this.selection.butaca.pop();
+        } else if (this.selection.pista > 0) {
+          this.selection.pista -= 1;
+        } else if (this.selection.barricada > 0) {
+          this.selection.barricada -= 1;
+        } else {
+          break;
+        }
+      }
     },
     incrementBarricada() {
       if (!this.canAddBarricada) return;

@@ -27,4 +27,9 @@ class Event extends Model
     {
         return $this->belongsTo(Tiquet::class);
     }
+
+    public function room()
+    {
+        return $this->hasOne(EventRoom::class, 'event_id');
+    }
 }

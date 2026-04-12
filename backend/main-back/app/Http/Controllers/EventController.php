@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Event;
+use App\Models\EventRoom;
 use App\Models\Tiquet;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -65,6 +66,25 @@ class EventController extends Controller
 
             $event = Event::create($eventData);
 
+            // C. Crear estado inicial de sala para el evento
+            EventRoom::create([
+                'event_id' => $event->id,
+                'barricada_total' => 30,
+                'barricada_reserved' => 0,
+                'pista_total' => 70,
+                'pista_reserved' => 0,
+                'A1' => 'Disponible',
+                'A2' => 'Disponible',
+                'A3' => 'Disponible',
+                'A4' => 'Disponible',
+                'A5' => 'Disponible',
+                'A6' => 'Disponible',
+                'A7' => 'Disponible',
+                'A8' => 'Disponible',
+                'A9' => 'Disponible',
+                'A10' => 'Disponible',
+            ]);
+
             return $event;
         });
 
@@ -77,6 +97,28 @@ class EventController extends Controller
     public function show($id)
     {
         return Event::with('tiquet')->findOrFail($id);
+    }
+
+    /**
+     * Retorna l'estat actual de la sala (event_room) per a un event.
+     */
+    public function room(Event $event)
+    {
+        $room = $event->room;
+
+        if (! $room) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No s\'ha trobat cap estat de sala per a aquest esdeveniment.',
+            ], 404);
+        }
+
+        return response()->json([
+            'success' => true,
+            'event_id' => $event->id,
+            'sold_out' => (bool) $event->sold_out,
+            'room' => $room,
+        ]);
     }
 
     /**

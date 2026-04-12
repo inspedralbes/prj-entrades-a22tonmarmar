@@ -13,6 +13,13 @@ export function getEventById(idEvent) {
   return apiClient.get(customURL);
 }
 
+// Estat actual de la sala per a un event concret
+export function getEventRoom(eventId) {
+  const apiClient = useApiClient();
+  const customURL = `${baseURL}/${eventId}/room`;
+  return apiClient.get(customURL);
+}
+
 export function createEvent(newEvent) {
   const apiClient = useApiClient();
   return apiClient.post(baseURL, newEvent);

@@ -6,6 +6,10 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  loading: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 const emit = defineEmits(["close", "go-to-checkout"]);
@@ -35,6 +39,7 @@ const emit = defineEmits(["close", "go-to-checkout"]);
 
           <OrderSummaryPanel
             class="mt-1 flex-1 overflow-y-auto"
+            :loading="props.loading"
             @close="emit('close')"
             @go-to-checkout="emit('go-to-checkout')"
           />

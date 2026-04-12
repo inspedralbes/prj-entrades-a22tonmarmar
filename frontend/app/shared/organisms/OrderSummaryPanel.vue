@@ -9,6 +9,13 @@ import OrderTotalsBox from "~/shared/molecules/OrderTotalsBox.vue";
 
 const emit = defineEmits(["close", "go-to-checkout"]);
 
+const props = defineProps({
+  loading: {
+    type: Boolean,
+    default: false,
+  },
+});
+
 const bookingStore = useBookingStore();
 const {
   selection,
@@ -151,10 +158,10 @@ const handleRemoveSeat = (label) => {
     <div class="mt-2 pt-1">
       <BaseButton
         class="w-full justify-center text-sm"
-        :disabled="totalSelected === 0"
+        :disabled="totalSelected === 0 || props.loading"
         @click="emit('go-to-checkout')"
       >
-        Ir a compra
+        {{ props.loading ? "Procesando" : "Ir a compra" }}
       </BaseButton>
     </div>
   </aside>

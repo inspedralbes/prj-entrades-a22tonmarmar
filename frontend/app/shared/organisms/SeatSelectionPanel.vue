@@ -1,7 +1,16 @@
 <script setup>
-import { computed, onMounted, ref, watch } from "vue";
+import { computed, onMounted, onUnmounted, ref, watch } from "vue";
 import { storeToRefs } from "pinia";
 import { useBookingStore } from "~/stores/useBookingStore";
+import { validateReserveOrder } from "~/services/ordersApi";
+import { getEventRoom } from "~/services/eventsApi";
+import {
+  connectSockets,
+  joinEventRoom,
+  leaveEventRoom,
+  onRoomUpdated,
+  offRoomUpdated,
+} from "@/services/socketService";
 import SeatLegend from "~/shared/organisms/SeatLegend.vue";
 import SeatZonesMap from "~/shared/organisms/SeatZonesMap.vue";
 import OrderSummaryPanel from "~/shared/organisms/OrderSummaryPanel.vue";
@@ -9,29 +18,77 @@ import MobileSummaryDrawer from "~/shared/organisms/MobileSummaryDrawer.vue";
 import BaseButton from "~/shared/atoms/BaseButton.vue";
 
 const bookingStore = useBookingStore();
-const { barricadaState, pistaState, butacaStates, totalSelected, selection } =
-  storeToRefs(bookingStore);
+const {
+  barricadaState,
+  pistaState,
+  butacaStates,
+  totalSelected,
+  selection,
+  selectedEvent,
+} = storeToRefs(bookingStore);
 
 const isSummaryOpen = ref(false);
 const isMobileDrawerOpen = ref(false);
 const userClosedSummary = ref(false);
+const isProcessing = ref(false);
+const currentEventRoomId = ref(null);
+let roomUpdatedHandler = null;
 
-// DEMO: si no hi ha disponibilitat carregada, creem una default per poder veure el mapa
-onMounted(() => {
-  if (
-    bookingStore.availability.barricada === 0 &&
-    bookingStore.availability.pista === 0 &&
-    (!bookingStore.availability.butaca ||
-      bookingStore.availability.butaca.length === 0)
-  ) {
-    bookingStore.setAvailability({
-      barricada: 10,
-      pista: 50,
-      butaca: Array.from({ length: 10 }, (_, index) => ({
-        value: `A-${index + 1}`,
-        state: "Disponible",
-      })),
-    });
+onMounted(async () => {
+  const event = selectedEvent.value;
+
+  // 1) Carreguem l'estat real de la sala des del backend
+  if (event && event.id) {
+    try {
+      const result = await getEventRoom(event.id);
+
+      if (result && result.success && result.room) {
+        const availability = mapRoomToAvailability(result.room);
+        bookingStore.setAvailability(availability);
+        // En carregar l'estat inicial de la sala, netegem la selecció local
+        bookingStore.resetSelection();
+      }
+    } catch (error) {
+      console.error(
+        error?.message || "No s'ha pogut carregar l'estat de la sala",
+      );
+      // Si falla, mantenim l'estat per defecte (tots 0) i deixem que sockets l'actualitzi
+    }
+  }
+
+  // 2) Connexió de sockets i subscripció a la room de l'event
+  if (import.meta.client) {
+    const config = useRuntimeConfig();
+    const baseUrl = config.public.socketsBase || "http://localhost:4000";
+
+    connectSockets(baseUrl);
+
+    if (event && event.id) {
+      console.log("[WS client] Mount SeatSelectionPanel for event", event.id);
+      currentEventRoomId.value = event.id;
+      joinEventRoom(event.id);
+    }
+
+    roomUpdatedHandler = (payload) => {
+      console.log("[WS client] room_updated payload", payload);
+      const room = payload?.room || payload;
+      const availability = mapRoomToAvailability(room);
+      console.log("[FLOW][front] roomUpdatedHandler → availability", availability);
+      bookingStore.setAvailability(availability);
+    };
+
+    onRoomUpdated(roomUpdatedHandler);
+  }
+});
+
+onUnmounted(() => {
+  if (currentEventRoomId.value != null) {
+    leaveEventRoom(currentEventRoomId.value);
+  }
+
+  if (roomUpdatedHandler) {
+    offRoomUpdated(roomUpdatedHandler);
+    roomUpdatedHandler = null;
   }
 });
 
@@ -119,8 +176,88 @@ const handleCloseMobileDrawer = () => {
   isMobileDrawerOpen.value = false;
 };
 
-const handleGoToCheckout = () => {
-  // TODO: implementar navegació a la vista de compra
+function mapRoomToAvailability(room) {
+  if (!room) {
+    return {
+      barricada: 0,
+      pista: 0,
+      butaca: [],
+    };
+  }
+
+  const barricada = (room.barricada_total || 0) - (room.barricada_reserved || 0);
+  const pista = (room.pista_total || 0) - (room.pista_reserved || 0);
+
+  const butaca = Array.from({ length: 10 }, (_, index) => {
+    const field = `A${index + 1}`;
+    const backendState = room[field];
+    let state = backendState || "Disponible";
+
+    // Mapegem l'estat de backend "Reservado" a l'estat de front "En tramite"
+    if (state === "Reservado") {
+      state = "En tramite";
+    }
+
+    return {
+      value: `A-${index + 1}`,
+      state,
+    };
+  });
+
+  return { barricada, pista, butaca };
+}
+
+const handleGoToCheckout = async () => {
+  if (isProcessing.value) return;
+  if (totalSelected.value === 0) return;
+
+  const event = selectedEvent.value;
+  if (!event || !event.id) return;
+
+  console.log("[FLOW][front] handleGoToCheckout selection", {
+    selection: selection.value,
+    totalSelected: totalSelected.value,
+    eventId: event.id,
+  });
+
+  const payload = {
+    barricada: selection.value.barricada || 0,
+    pista: selection.value.pista || 0,
+    // Convertim "A-1" -> "A1" per al backend
+    butaques: Array.isArray(selection.value.butaca)
+      ? selection.value.butaca.map((label) => label.replace("A-", "A"))
+      : [],
+  };
+
+  console.log("[FLOW][front] handleGoToCheckout payload to backend", {
+    eventId: event.id,
+    payload,
+  });
+
+  isProcessing.value = true;
+  try {
+    const result = await validateReserveOrder(event.id, payload);
+
+    console.log("[FLOW][front] handleGoToCheckout response from backend", result);
+
+    if (!result || result.success === false) {
+      // TODO: mostrar missatge d'error d'una forma més amable
+      console.error(result?.message || "Error desconegut en validar la reserva");
+      return;
+    }
+
+    const room = result.room;
+    const availability = mapRoomToAvailability(room);
+    bookingStore.setAvailability(availability);
+    // Després de reservar amb èxit, netegem la selecció de l'usuari
+    bookingStore.resetSelection();
+  } catch (error) {
+    // TODO: mostrar missatge d'error d'una forma més amable
+    console.error("[FLOW][front] handleGoToCheckout error", error);
+    console.error(error?.message || "Error al comunicar amb el servidor");
+  } finally {
+    isProcessing.value = false;
+  }
 };
 </script>
 
@@ -154,6 +291,7 @@ const handleGoToCheckout = () => {
       <OrderSummaryPanel
         v-if="totalSelected > 0 && isSummaryOpen"
         class="md:sticky md:top-4"
+        :loading="isProcessing"
         @close="handleCloseSummary"
         @go-to-checkout="handleGoToCheckout"
       />
@@ -171,6 +309,7 @@ const handleGoToCheckout = () => {
 
     <MobileSummaryDrawer
       :open="isMobileDrawerOpen"
+      :loading="isProcessing"
       @close="handleCloseMobileDrawer"
       @go-to-checkout="handleGoToCheckout"
     />

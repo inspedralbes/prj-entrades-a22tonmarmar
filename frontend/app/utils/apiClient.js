@@ -21,9 +21,14 @@ function getToken() {
 export function useApiClient() {
   const config = useRuntimeConfig();
 
+  // En SSR (dins Docker) usem la base interna; en client, la pública
+  const baseURL = import.meta.server
+    ? config.apiBase
+    : config.public.apiBaseBrowser;
+
   const client = $fetch.create({
-    baseURL: config.public.apiBase,
-    timeout: 10000,
+    baseURL,
+    timeout: 30000,
     headers: {
       Accept: "application/json",
     },
