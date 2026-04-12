@@ -153,19 +153,27 @@ async function handleConfirm() {
       card_cvv: form.cardCvv,
     };
 
-    const response = await confirmOrder(orderId.value, payload);
+    const result = await confirmOrder(orderId.value, payload);
 
-    if (!response || response.success === false) {
+    if (!result || result.success === false || !result.id) {
       globalError.value =
-        response?.message || "No s'ha pogut completar la compra.";
+        result?.message || "No s'ha pogut completar la compra.";
       return;
     }
+
+    bookingStore.setCompletedOrder?.({
+      id: result.id,
+      tiquets: result.tiquets || [],
+      total: result.total ?? 0,
+    });
 
     isCompleted.value = true;
     if (intervalId) {
       window.clearInterval(intervalId);
       intervalId = null;
     }
+
+    router.push("/events/confirmation");
   } catch (error) {
     console.error("[FLOW][front] handleConfirm error", error);
     globalError.value =

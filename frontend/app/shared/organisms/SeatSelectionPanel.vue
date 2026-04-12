@@ -4,6 +4,7 @@ import { useRouter } from "vue-router";
 import { storeToRefs } from "pinia";
 import { useBookingStore } from "~/stores/useBookingStore";
 import { getEventRoom } from "~/services/eventsApi";
+import { startCheckout } from "~/services/ordersApi";
 import {
   connectSockets,
   joinEventRoom,
@@ -11,7 +12,6 @@ import {
   onRoomUpdated,
   offRoomUpdated,
 } from "@/services/socketService";
-import { useAuthStore } from "~/stores/auth";
 import SeatLegend from "~/shared/organisms/SeatLegend.vue";
 import SeatZonesMap from "~/shared/organisms/SeatZonesMap.vue";
 import OrderSummaryPanel from "~/shared/organisms/OrderSummaryPanel.vue";
@@ -20,7 +20,6 @@ import BaseButton from "~/shared/atoms/BaseButton.vue";
 
 const router = useRouter();
 const bookingStore = useBookingStore();
-const authStore = useAuthStore();
 const {
   barricadaState,
   pistaState,
@@ -256,7 +255,7 @@ const handleGoToCheckout = async () => {
     if (!result || result.success === false) {
       // TODO: mostrar missatge d'error d'una forma més amable
       console.error(
-        result?.message || "Error desconegut en validar la reserva",
+        result?.message || "Error desconegut en iniciar el checkout",
       );
       return;
     }
@@ -265,58 +264,6 @@ const handleGoToCheckout = async () => {
     const availability = mapRoomToAvailability(room);
     bookingStore.setAvailability(availability);
 
-    // Un cop reservades les places, intentem crear la comanda definitiva
-    const tiquets = [];
-
-    // Afegim un tiquet per cada unitat de barricada
-    if (selectionSnapshot.barricada > 0) {
-      for (let i = 0; i < selectionSnapshot.barricada; i += 1) {
-        tiquets.push({ type: "preu_barricada", butaca: null });
-      }
-    }
-
-    // Afegim un tiquet per cada unitat de pista (preu base)
-    if (selectionSnapshot.pista > 0) {
-      for (let i = 0; i < selectionSnapshot.pista; i += 1) {
-        tiquets.push({ type: "preu_base", butaca: null });
-      }
-    }
-
-    // Afegim un tiquet per cada butaca seleccionada
-    if (Array.isArray(selection.value.butaca) && selection.value.butaca.length) {
-      selection.value.butaca.forEach((label) => {
-        tiquets.push({
-          type: "preu_butaca",
-          butaca: label.replace("A-", "A"),
-        });
-      });
-    }
-
-    const email = authStore.user?.email || null;
-
-    const orderPayload = {
-      event_id: event.id,
-      email,
-      tiquets,
-    };
-
-    console.log("[FLOW][front] handleGoToCheckout createOrder payload", {
-      payload: orderPayload,
-    });
-
-    const order = await createOrder(orderPayload);
-
-    console.log("[FLOW][front] handleGoToCheckout order created", order);
-
-    if (!order || !order.id) {
-      console.error("No s'ha pogut crear la comanda correctament");
-      return;
-    }
-
-    bookingStore.setCompletedOrder(order);
-    // Després de reservar i crear la comanda amb èxit, netegem la selecció de l'usuari
-    bookingStore.resetSelection();
-
     const orderId = result.order_id;
 
     if (orderId) {
@@ -324,6 +271,8 @@ const handleGoToCheckout = async () => {
         name: "events-checkout",
         query: { orderId },
       });
+    } else {
+      console.error("No s'ha rebut cap order_id en iniciar el checkout");
     }
   } catch (error) {
     // TODO: mostrar missatge d'error d'una forma més amable

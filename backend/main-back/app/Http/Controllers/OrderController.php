@@ -341,9 +341,50 @@ class OrderController extends Controller
 
             $event->save();
 
-            // Actualitzem la comanda
+            // Carreguem informació de preus del tiquet associat
+            $event->load('tiquet');
+
+            if (! $event->tiquet) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'No es poden calcular els preus perquè l\'esdeveniment no té tiquet associat.',
+                ], 422);
+            }
+
+            $baseTicket = $event->tiquet;
+
+            // Enriquim els tiquets amb preu i mapegem els tipus per al front
+            $pricedTickets = [];
+            $total = 0.0;
+
+            foreach ($tiquets as $ticket) {
+                $type = $ticket['type'] ?? null;
+
+                if ($type === 'barricada') {
+                    $mappedType = 'preu_barricada';
+                    $price = (float) $baseTicket->preu_barricada;
+                } elseif ($type === 'butaca') {
+                    $mappedType = 'preu_butaca';
+                    $price = (float) $baseTicket->preu_butaca;
+                } else {
+                    // Per defecte, utilitzem el preu base de pista
+                    $mappedType = 'preu_base';
+                    $price = (float) $baseTicket->preu_base;
+                }
+
+                $pricedTickets[] = [
+                    'type' => $mappedType,
+                    'butaca' => $ticket['butaca'] ?? null,
+                    'price' => $price,
+                ];
+
+                $total += $price;
+            }
+
+            // Actualitzem la comanda amb l'email definitiu, l'estat i el detall de tiquets enriquit
             $order->email = $validated['email'];
             $order->status = 'completado';
+            $order->tiquets = $pricedTickets;
             $order->save();
 
             // Notificar al servidor de sockets
@@ -351,7 +392,9 @@ class OrderController extends Controller
 
             return response()->json([
                 'success' => true,
-                'order' => $order->fresh(),
+                'id' => $order->id,
+                'tiquets' => $pricedTickets,
+                'total' => round($total, 2),
             ]);
         });
     }

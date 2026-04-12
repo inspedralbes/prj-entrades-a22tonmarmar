@@ -35,6 +35,24 @@ const tickets = computed(() => completedOrder.value?.tiquets || []);
 const total = computed(() => completedOrder.value?.total ?? 0);
 const orderId = computed(() => completedOrder.value?.id ?? null);
 
+const barricadaSubtotal = computed(() => {
+  return tickets.value
+    .filter((t) => t.type === "preu_barricada")
+    .reduce((sum, t) => sum + Number(t.price ?? 0), 0);
+});
+
+const pistaSubtotal = computed(() => {
+  return tickets.value
+    .filter((t) => t.type === "preu_base")
+    .reduce((sum, t) => sum + Number(t.price ?? 0), 0);
+});
+
+const butacaSubtotal = computed(() => {
+  return tickets.value
+    .filter((t) => t.type === "preu_butaca")
+    .reduce((sum, t) => sum + Number(t.price ?? 0), 0);
+});
+
 const handleGoHome = () => {
   bookingStore.clearCompletedOrder();
   bookingStore.clearSelectedEvent();
@@ -101,11 +119,35 @@ const handleGoHome = () => {
           No s'han trobat tiquets en aquesta compra.
         </p>
 
-        <div class="mt-3 flex items-center justify-between border-t border-slate-800 pt-3 text-sm">
-          <span class="font-semibold">Total</span>
-          <span class="text-lg font-bold text-emerald-300">
-            {{ Number(total).toFixed(2) }} €
-          </span>
+        <div
+          v-if="tickets.length > 0"
+          class="mt-3 space-y-1 border-t border-slate-800 pt-3 text-xs"
+        >
+          <div class="flex items-center justify-between">
+            <span class="text-slate-300">Subtotal Barricada</span>
+            <span class="font-semibold text-slate-100">
+              {{ barricadaSubtotal.toFixed(2) }} €
+            </span>
+          </div>
+          <div class="flex items-center justify-between">
+            <span class="text-slate-300">Subtotal Pista</span>
+            <span class="font-semibold text-slate-100">
+              {{ pistaSubtotal.toFixed(2) }} €
+            </span>
+          </div>
+          <div class="flex items-center justify-between">
+            <span class="text-slate-300">Subtotal Butaca</span>
+            <span class="font-semibold text-slate-100">
+              {{ butacaSubtotal.toFixed(2) }} €
+            </span>
+          </div>
+
+          <div class="mt-2 flex items-center justify-between text-sm">
+            <span class="font-semibold">Total</span>
+            <span class="text-lg font-bold text-emerald-300">
+              {{ Number(total).toFixed(2) }} €
+            </span>
+          </div>
         </div>
       </section>
 
