@@ -36,7 +36,7 @@ RUN composer install --no-interaction --prefer-dist --no-progress
 RUN chown -R www-data:www-data storage bootstrap/cache \
 	&& chmod -R 775 storage bootstrap/cache
 
-RUN composer dump-autoload --optimize --no-dev
+RUN composer dump-autoload
 
 EXPOSE 8000
 
