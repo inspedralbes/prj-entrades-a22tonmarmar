@@ -16,7 +16,7 @@ COPY . .
 RUN npm run build
 
 # Production stage
-FROM node:20-alpine AS prod
+FROM node:22-alpine AS prod
 WORKDIR /app
 COPY --from=build /app/.output ./.output
 ENV HOST=0.0.0.0

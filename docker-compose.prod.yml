@@ -48,7 +48,7 @@ services:
   frontend:
     build:
       context: ./frontend
-      target: prod # Points to the 'dev' stage in Dockerfile
+      target: prod # Points to the 'prod' stage in Dockerfile
     volumes:
       - ./frontend:/app
       - /app/node_modules
