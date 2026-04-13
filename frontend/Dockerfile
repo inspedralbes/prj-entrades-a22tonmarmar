@@ -13,8 +13,7 @@ CMD ["npm", "run", "dev"]
 # Build stage
 FROM base AS prod
 COPY . .
-RUN npm run build
-
+RUN npm run generate
 ENV HOST=0.0.0.0
 ENV PORT=3000
 CMD ["node", ".output/server/index.mjs"]
