@@ -12,7 +12,7 @@ export default defineNuxtConfig({
     apiBase: process.env.NUXT_API_BASE,
     public: {
       apiBaseBrowser: process.env.NUXT_API_BASE,
-      socketsBase: process.env.NUXT_SOCKETS_BASE,
+      socketsBase: process.env.NUXT_SOCKETS_URL,
     },
   },
 });

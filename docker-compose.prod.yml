@@ -58,7 +58,7 @@ services:
       - NUXT_HOST=0.0.0.0
       - NUXT_PORT=3000
       - CHOKIDAR_USEPOLLING=true
-      - NUXT_DEVTOOLS=true
+      - NUXT_DEVTOOLS=true  
     networks:
       - prj-entrades
 
