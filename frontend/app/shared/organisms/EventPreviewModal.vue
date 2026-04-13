@@ -18,13 +18,17 @@ const props = defineProps({
 
 const emit = defineEmits(["close"]);
 
+
+const config = useRuntimeConfig();
 const imageSrc = computed(() => {
   if (!props.event?.imatge) return "";
   const value = String(props.event.imatge);
   if (value.startsWith("http://") || value.startsWith("https://")) {
     return value;
   }
-  return `http://localhost:8000${value.startsWith("/") ? "" : "/"}${value}`;
+  // Usa la base pública de la API para imágenes
+  const base = config.public.apiBaseBrowser?.replace(/\/$/, "") || "";
+  return `${base}${value.startsWith("/") ? "" : "/"}${value}`;
 });
 </script>
 

@@ -64,7 +64,7 @@ onMounted(async () => {
   // 2) Connexió de sockets i subscripció a la room de l'event
   if (import.meta.client) {
     const config = useRuntimeConfig();
-    const baseUrl = config.public.socketsBase || "http://localhost:4000";
+    const baseUrl = config.public.socketsBase;
 
     connectSockets(baseUrl);
 
