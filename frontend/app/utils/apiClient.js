@@ -26,33 +26,59 @@ export function useApiClient() {
     ? config.apiBase
     : config.public.apiBaseBrowser;
 
-  const client = $fetch.create({
-    baseURL,
-    timeout: 30000,
-    headers: {
+  async function request(
+    url,
+    { method = "GET", body, headers = {}, ...rest } = {},
+  ) {
+    const token = getToken();
+    const finalHeaders = {
       Accept: "application/json",
-    },
-    onRequest({ options }) {
-      const token = getToken();
-      if (token) {
-        options.headers = {
-          ...options.headers,
-          Authorization: `Bearer ${token}`,
-        };
-      }
-    },
-    onResponseError({ error }) {
+      "Content-Type": "application/json",
+      ...headers,
+    };
+    if (token) {
+      finalHeaders["Authorization"] = `Bearer ${token}`;
+    }
+
+    const fetchOptions = {
+      method,
+      headers: finalHeaders,
+      ...rest,
+    };
+    if (body !== undefined) {
+      fetchOptions.body =
+        typeof body === "string" ? body : JSON.stringify(body);
+    }
+
+    let response;
+    try {
+      response = await fetch(baseURL + url, fetchOptions);
+    } catch (error) {
       throw regularApiError(error);
-    },
-  });
+    }
+
+    let data;
+    try {
+      data = await response.json();
+    } catch (e) {
+      data = null;
+    }
+
+    if (!response.ok) {
+      throw regularApiError({
+        response: { status: response.status, _data: data },
+      });
+    }
+    return data;
+  }
 
   return {
-    get: (url, options = {}) => client(url, { ...options, method: "GET" }),
+    get: (url, options = {}) => request(url, { ...options, method: "GET" }),
     post: (url, body, options = {}) =>
-      client(url, { ...options, method: "POST", body }),
+      request(url, { ...options, method: "POST", body }),
     patch: (url, body, options = {}) =>
-      client(url, { ...options, method: "PATCH", body }),
+      request(url, { ...options, method: "PATCH", body }),
     delete: (url, options = {}) =>
-      client(url, { ...options, method: "DELETE" }),
+      request(url, { ...options, method: "DELETE" }),
   };
 }
