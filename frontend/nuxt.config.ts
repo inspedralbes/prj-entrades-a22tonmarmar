@@ -9,13 +9,13 @@ export default defineNuxtConfig({
   },
   runtimeConfig: {
     // Base interna (dins Docker) per a SSR i codi de servidor
-    apiBase: process.env.NUXT_API_BASE || "http://main-back:8000/api",
+    apiBase: process.env.NUXT_API_BASE,
     public: {
       // Base que utilitza el navegador (fora de Docker)
       apiBaseBrowser:
-        process.env.NUXT_PUBLIC_API_BASE || "http://localhost:8000/api",
+        process.env.NUXT_PUBLIC_API_BASE,
       socketsBase:
-        process.env.NUXT_PUBLIC_SOCKETS_BASE || "http://localhost:4000",
+        process.env.NUXT_PUBLIC_SOCKETS_BASE
     },
   },
 });
