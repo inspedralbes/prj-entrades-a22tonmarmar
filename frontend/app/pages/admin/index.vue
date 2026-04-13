@@ -4,7 +4,7 @@ import { useRouter } from "vue-router";
 import { useAuthApi } from "~/services/authApi";
 import { useAuthStore } from "~/stores/auth";
 import AdminLoginForm from "@/shared/organisms/AdminLoginForm.vue";
-import AdminLayout from "@/pages/layout.vue";
+import AdminLayout from "../layout.vue";
 
 const loading = ref(false);
 const errorMessage = ref("");

@@ -13,7 +13,7 @@ import EventFormModal from "@/shared/organisms/EventFormModal.vue";
 import SuccessModal from "@/shared/organisms/SuccessModal.vue";
 import ConfirmDeleteModal from "@/shared/organisms/ConfirmDeleteModal.vue";
 import EventPreviewModal from "@/shared/organisms/EventPreviewModal.vue";
-import AdminLayout from "@/pages/admin/layout.vue";
+import AdminLayout from "../../../pages/layout.vue";
 
 definePageMeta({
   middleware: "auth",
