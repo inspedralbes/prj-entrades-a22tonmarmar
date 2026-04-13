@@ -50,15 +50,15 @@ jobs:
             echo "DB_DATABASE=${{ secrets.DB_DATABASE }}" >> .env
             echo "DB_USERNAME=${{ secrets.DB_USERNAME }}" >> .env
             echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
-            echo "SOCKETS_BASE_URL"=${{ secrets.SOCKETS_BASE_URL}}" >> .env
-            echo "ADMIN_PASSWORD"=${{ secrets.ADMIN_PASSWORD}}" >> .env
-            echo "ADMIN_EMAIL"=${{ secrets.ADMIN_EMAIL}}" >> .env
+            echo "SOCKETS_BASE_URL=${{ secrets.SOCKETS_BASE_URL }}" >> .env
+            echo "ADMIN_PASSWORD=${{ secrets.ADMIN_PASSWORD }}" >> .env
+            echo "ADMIN_EMAIL=${{ secrets.ADMIN_EMAIL }}" >> .env
             cd ../..
 
             echo "Configurant fitxer .env de node..."
             cd ./back/socket-back
             echo "Copiant fitxer .env.PROD a .env..."
-            echo "CORS_ORIGIN"=${{ secrets.CORS_ORIGIN}}" >> .env
+            echo "CORS_ORIGIN=${{ secrets.CORS_ORIGIN}}" >> .env
             cd ../..
 
             echo "Configurant fitxer .env de frontend..."
