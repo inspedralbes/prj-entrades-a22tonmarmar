@@ -49,9 +49,6 @@ services:
     build:
       context: ./frontend
       target: prod # Points to the 'prod' stage in Dockerfile
-    volumes:
-      - ./frontend:/app
-      - /app/node_modules
     ports:
       - "3000:3000"
     environment:
@@ -59,6 +56,8 @@ services:
       - NUXT_PORT=3000
       - CHOKIDAR_USEPOLLING=true
       - NUXT_DEVTOOLS=true  
+      - NUXT_API_BASE=${NUXT_API_BASE}                                                                                   • vue frontend
+      - NUXT_SOCKET_URL=${NUXT_SOCKET_URL}  
     networks:
       - prj-entrades
 
