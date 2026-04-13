@@ -4,7 +4,7 @@ export function useAuthApi() {
   const api = useApiClient();
 
   async function login(credentials) {
-    const response = await api.post("/loginpatata", credentials);
+    const response = await api.post("/login", credentials);
     return response;
   }
 
