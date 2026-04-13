@@ -46,13 +46,18 @@ export function useApiClient() {
       ...rest,
     };
     if (body !== undefined) {
-      fetchOptions.body =
-        typeof body === "string" ? body : JSON.stringify(body);
+      if (body instanceof FormData) {
+        fetchOptions.body = body;
+        delete finalHeaders["Content-Type"];
+      } else {
+        fetchOptions.body =
+          typeof body === "string" ? body : JSON.stringify(body);
+      }
     }
 
     let response;
     try {
-      response = await fetch(baseURL + url, fetchOptions);
+      response = await fetch(baseURL + "/api" + url, fetchOptions);
     } catch (error) {
       throw regularApiError(error);
     }
