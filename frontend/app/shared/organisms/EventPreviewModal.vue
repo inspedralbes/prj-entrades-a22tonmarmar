@@ -18,7 +18,6 @@ const props = defineProps({
 
 const emit = defineEmits(["close"]);
 
-
 const config = useRuntimeConfig();
 const imageSrc = computed(() => {
   if (!props.event?.imatge) return "";

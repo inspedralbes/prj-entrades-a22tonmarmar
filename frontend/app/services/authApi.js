@@ -8,10 +8,9 @@ export function useAuthApi() {
     return response;
   }
 
-  // de moment no existeix el logout
   async function logout() {
     const response = await api.post("/logout");
-    return Promise.resolve();
+    return response;
   }
 
   return {

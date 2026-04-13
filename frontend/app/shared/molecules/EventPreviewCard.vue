@@ -12,7 +12,6 @@ const props = defineProps({
 
 const emit = defineEmits(["select"]);
 
-
 const config = useRuntimeConfig();
 const imageSrc = computed(() => {
   if (!props.event?.imatge) return "";
