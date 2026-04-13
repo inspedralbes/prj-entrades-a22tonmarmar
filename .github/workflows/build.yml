@@ -56,7 +56,7 @@ jobs:
             cd ../..
 
             echo "Configurant fitxer .env de node..."
-            cd ./back/socket-back
+            cd ./backend/sockets-server
             echo "Copiant fitxer .env.PROD a .env..."
             echo "CORS_ORIGIN=${{ secrets.CORS_ORIGIN}}" >> .env
             cd ../..
