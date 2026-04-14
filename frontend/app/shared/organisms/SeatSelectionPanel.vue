@@ -64,7 +64,8 @@ onMounted(async () => {
   // 2) Connexió de sockets i subscripció a la room de l'event
   if (import.meta.client) {
     const config = useRuntimeConfig();
-    const baseUrl = config.public.socketsBase;
+    let baseUrl = config.public.socketsBase;
+    baseUrl = baseUrl + "/sockets";
 
     connectSockets(baseUrl);
 
