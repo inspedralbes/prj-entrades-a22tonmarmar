@@ -63,11 +63,7 @@ onMounted(async () => {
 
   // 2) Connexió de sockets i subscripció a la room de l'event
   if (import.meta.client) {
-    const config = useRuntimeConfig();
-    let baseUrl = config.public.socketsBase;
-    baseUrl = baseUrl;
-
-    connectSockets(baseUrl);
+    connectSockets();
 
     if (event && event.id) {
       console.log("[WS client] Mount SeatSelectionPanel for event", event.id);

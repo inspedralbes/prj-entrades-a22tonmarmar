@@ -2,12 +2,12 @@ import { io } from "socket.io-client";
 
 let socket = null;
 
-export function connectSockets(baseUrl) {
+export function connectSockets() {
   if (socket) return socket;
 
   console.log(
     "[WS client] Initializing socket.io client with baseUrl:",
-    baseUrl,
+    window.location.origin + "/sockets",
   );
 
   socket = io(window.location.origin + "/sockets");
