@@ -21,6 +21,16 @@ const io = new Server(server, {
 app.use(cors({ origin: CORS_ORIGIN }));
 app.use(express.json());
 
+app.use((req, res, next) => {
+  console.log('[HTTP] Petición recibida:', {
+    method: req.method,
+    url: req.url,
+    path: req.path,
+    query: req.query,
+  });
+  next();
+});
+
 // Endpoint per rebre notificacions del backend Laravel i emetre a la room de l'event
 app.post('/events/:id/room-updated', (req, res) => {
   const eventId = req.params.id;
@@ -40,6 +50,18 @@ app.post('/events/:id/room-updated', (req, res) => {
 });
 
 //Sockets
+io.engine.on("initial_headers", (headers, req) => {
+  console.log('[Socket.IO] initial_headers:', req.url);
+});
+
+io.engine.on("headers", (headers, req) => {
+  console.log('[Socket.IO] headers:', req.url);
+});
+
+io.engine.on("connection_error", (err) => {
+  console.log('[Socket.IO] connection_error:', err);
+});
+
 io.on('connection', (socket) => {
   console.log('[WS] Client conectat:', socket.id);
 
