@@ -64,7 +64,7 @@ jobs:
             echo "Configurant fitxer .env de frontend..."
             cd ./frontend
             echo "NUXT_API_BASE=${{ secrets.NUXT_API_BASE }}" > .env
-            echo "NUXT_SOCKET_URL=${{ secrets.NUXT_SOCKET_URL }}" >> .env
+            echo "NUXT_SOCKETS_URL=${{ secrets.NUXT_SOCKETS_URL }}" >> .env
             cd ..
 
             echo "Configuració completada."
