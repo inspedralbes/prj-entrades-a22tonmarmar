@@ -10,7 +10,7 @@ export function connectSockets(baseUrl) {
 
   socket = io(baseUrl, {
     path: "/sockets",
-    transports: ["polling", "websocket"],
+    transports: ["websocket", "polling"],
   });
 
   socket.on("connect", () => {
