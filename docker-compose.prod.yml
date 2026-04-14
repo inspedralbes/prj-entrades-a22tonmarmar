@@ -57,7 +57,7 @@ services:
       - CHOKIDAR_USEPOLLING=true
       - NUXT_DEVTOOLS=true  
       - NUXT_API_BASE=${NUXT_API_BASE}
-      - NUXT_SOCKET_URL=${NUXT_SOCKET_URL}  
+      - NUXT_SOCKETS_URL=${NUXT_SOCKETS_URL}  
     networks:
       - prj-entrades
 
