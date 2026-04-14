@@ -57,7 +57,7 @@ export function useApiClient() {
 
     let response;
     try {
-      response = await fetch(baseURL + "/api" + url, fetchOptions);
+      response = await fetch(baseURL + url, fetchOptions);
     } catch (error) {
       throw regularApiError(error);
     }
