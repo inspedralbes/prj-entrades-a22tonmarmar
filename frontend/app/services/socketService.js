@@ -6,7 +6,6 @@ export function connectSockets(baseUrl) {
   if (socket) return socket;
 
   console.log("[WS client] Initializing socket.io client with baseUrl:", baseUrl);
-  console.log("[WS client] Full URL:", baseUrl + "/socket.io?EIO=4&transport=polling");
 
   socket = io(baseUrl);
 
