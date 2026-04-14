@@ -5,16 +5,24 @@ let socket = null;
 export function connectSockets(baseUrl) {
   if (socket) return socket;
 
-  console.log("[WS client] Initializing socket.io client with baseUrl:", baseUrl);
+  console.log(
+    "[WS client] Initializing socket.io client with baseUrl:",
+    baseUrl,
+  );
 
-  socket = io(baseUrl);
+  socket = io(baseUrl, {
+    path: "/socket.io",
+  });
 
   socket.on("connect", () => {
     console.log("[WS client] Connected to sockets server with id", socket.id);
   });
 
   socket.on("connect_error", (err) => {
-    console.error("[WS client] Connection error to sockets server:", err?.message || err);
+    console.error(
+      "[WS client] Connection error to sockets server:",
+      err?.message || err,
+    );
   });
 
   socket.on("error", (err) => {
@@ -57,4 +65,3 @@ export function disconnectSockets() {
   socket.disconnect();
   socket = null;
 }
-
