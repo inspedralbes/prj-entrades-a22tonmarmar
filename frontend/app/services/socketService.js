@@ -9,6 +9,7 @@ export function connectSockets(baseUrl) {
   console.log("[WS client] Full URL:", baseUrl + "/socket.io?EIO=4&transport=polling");
 
   socket = io(baseUrl, {
+    path: "/",
     transports: ["polling", "websocket"],
   });
 
