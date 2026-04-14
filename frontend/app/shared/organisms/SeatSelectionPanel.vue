@@ -65,7 +65,7 @@ onMounted(async () => {
   if (import.meta.client) {
     const config = useRuntimeConfig();
     let baseUrl = config.public.socketsBase;
-    baseUrl = baseUrl + "/sockets";
+    baseUrl = baseUrl;
 
     connectSockets(baseUrl);
 
