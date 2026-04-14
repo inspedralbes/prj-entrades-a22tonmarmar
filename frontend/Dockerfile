@@ -12,6 +12,8 @@ CMD ["npm", "run", "dev"]
 
 # Build stage
 FROM base AS prod
+ARG NUXT_SOCKETS_URL
+ENV NUXT_SOCKETS_URL=$NUXT_SOCKETS_URL
 COPY . .
 RUN npm run build
 ENV HOST=0.0.0.0
