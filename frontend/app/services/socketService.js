@@ -7,10 +7,10 @@ export function connectSockets() {
 
   console.log(
     "[WS client] Initializing socket.io client with baseUrl:",
-    window.location.origin + "/sockets",
+    window.location.origin + "/sockets/",
   );
 
-  socket = io(window.location.origin + "/sockets");
+  socket = io(window.location.origin + "/sockets/");
 
   socket.on("connect", () => {
     console.log("[WS client] Connected to sockets server with id", socket.id);
