@@ -8,10 +8,7 @@ export function connectSockets(baseUrl) {
   console.log("[WS client] Initializing socket.io client with baseUrl:", baseUrl);
   console.log("[WS client] Full URL:", baseUrl + "/socket.io?EIO=4&transport=polling");
 
-  socket = io(baseUrl, {
-    path: "/sockets",
-    transports: ["websocket", "polling"],
-  });
+  socket = io(baseUrl);
 
   socket.on("connect", () => {
     console.log("[WS client] Connected to sockets server with id", socket.id);
