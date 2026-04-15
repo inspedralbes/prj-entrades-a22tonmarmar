@@ -46,7 +46,7 @@ class EventController extends Controller
         $imagePath = null;
         if ($request->hasFile('imatge')) {
             $path = $request->file('imatge')->store('events', 'public');
-            $imagePath = Storage::url($path);
+            $imagePath = '/' . $path;
         }
 
         $event = DB::transaction(function () use ($validated, $imagePath) {
@@ -144,7 +144,7 @@ class EventController extends Controller
         $imagePath = null;
         if ($request->hasFile('imatge')) {
             $path = $request->file('imatge')->store('events', 'public');
-            $imagePath = Storage::url($path);
+            $imagePath = '/' . $path;
         }
 
         $data = collect($validated)->except(['imatge'])->toArray();

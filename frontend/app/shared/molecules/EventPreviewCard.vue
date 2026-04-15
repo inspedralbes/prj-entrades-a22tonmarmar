@@ -19,8 +19,8 @@ const imageSrc = computed(() => {
   if (value.startsWith("http://") || value.startsWith("https://")) {
     return value;
   }
-  // Usa la base pública de la API para imágenes
-  const base = config.public.apiBaseBrowser?.replace(/\/$/, "") || "";
+  // Usa la base de imágenes
+  const base = config.public.imagesBaseBrowser?.replace(/\/$/, "") || "";
   return `${base}${value.startsWith("/") ? "" : "/"}${value}`;
 });
 

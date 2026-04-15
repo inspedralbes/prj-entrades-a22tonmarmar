@@ -7,13 +7,15 @@ export default defineNuxtConfig({
   tailwindcss: {
     cssPath: "~/assets/css/tailwind.css",
   },
-  runtimeConfig: {
+runtimeConfig: {
     // Base interna (dins Docker) per a SSR i codi de servidor
     apiBase: process.env.NUXT_API_BASE,
-    socketsBase: process.env.NUXT_SOCKETS_URL,
+    socketsBase: process.env.NUXT_SOCKET_URL,
     public: {
       apiBaseBrowser: process.env.NUXT_API_BASE,
-      socketsBaseBrowser: process.env.NUXT_SOCKETS_URL,
+      imagesBaseBrowser: process.env.NUXT_IMAGES_BASE,
+      socketsBaseBrowser: process.env.NUXT_SOCKET_URL,
     },
+  },
   },
 });
