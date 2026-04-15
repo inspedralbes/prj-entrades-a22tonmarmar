@@ -10,8 +10,8 @@ export function connectSockets() {
     window.location.origin + "/sockets/",
   );
 
-  socket = io(window.location.origin + "/sockets/", {
-    path: '/sockets'
+  socket = io(window.location.origin, {
+    path: "/sockets",
   });
 
   socket.on("connect", () => {
