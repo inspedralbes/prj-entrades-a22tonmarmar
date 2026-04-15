@@ -10,7 +10,9 @@ export function connectSockets() {
     window.location.origin + "/sockets/",
   );
 
-  socket = io(window.location.origin + "/sockets/");
+  socket = io(window.location.origin + "/sockets/", {
+    path: '/sockets'
+  });
 
   socket.on("connect", () => {
     console.log("[WS client] Connected to sockets server with id", socket.id);
