@@ -10,6 +10,7 @@ export default defineNuxtConfig({
   runtimeConfig: {
     // Base interna (dins Docker) per a SSR i codi de servidor
     apiBase: process.env.NUXT_API_BASE,
+    imagesBase: process.env.NUXT_IMAGES_BASE,
     socketsBase: process.env.NUXT_SOCKET_URL,
     public: {
       apiBaseBrowser: process.env.NUXT_API_BASE,
