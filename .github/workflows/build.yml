@@ -65,7 +65,7 @@ jobs:
             cd ./frontend
             echo "NUXT_API_BASE=${{ secrets.NUXT_API_BASE }}" > .env
             echo "NUXT_SOCKETS_URL=${{ secrets.NUXT_SOCKETS_URL }}" >> .env
-            echo "NUXT_IMAGES_BASE"=${{ secrets.NUXT_API_BASE }} >> .env
+            echo "NUXT_IMAGES_BASE"=${{ secrets.NUXT_IMAGES_BASE }} >> .env
             cd ..
 
             echo "Configuració completada."
