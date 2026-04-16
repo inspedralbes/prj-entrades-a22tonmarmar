@@ -20,7 +20,7 @@ const imageSrc = computed(() => {
     return value;
   }
   // Usa la base de imágenes
-  const base = config.imagesBase?.replace(/\/$/, "") || "";
+  const base = config.public.imagesBaseBrowser?.replace(/\/$/, "") || "";
   return `${base}${value.startsWith("/") ? "" : "/"}${value}`;
 });
 
