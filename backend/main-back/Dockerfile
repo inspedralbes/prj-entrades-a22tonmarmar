@@ -34,9 +34,13 @@ RUN composer install --no-interaction --prefer-dist --no-progress
 
 # Ensure writable dirs
 RUN chown -R www-data:www-data storage bootstrap/cache \
-	&& chmod -R 775 storage bootstrap/cache
+	&& chmod -R 775 storage bootstrap/cache \ 
+	&& chown -R www-data:www-data /var/www/html/storage/app/public \  
+	&& chmod -R 755 /var/www/html/storage/app/public 
 
 RUN composer dump-autoload
+
+RUN php artisan storage:link
 
 EXPOSE 8000
 
